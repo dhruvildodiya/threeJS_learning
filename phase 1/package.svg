@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Matte Dark Background -->
+  <rect width="512" height="512" fill="#0f172a"/>
+
+  <!-- Gold Border Frame -->
+  <rect x="24" y="24" width="464" height="464" rx="12" fill="none" stroke="#eab308" stroke-width="4"/>
+
+  <!-- Emblem Icon -->
+  <circle cx="256" cy="150" r="50" fill="#eab308"/>
+  <circle cx="256" cy="150" r="25" fill="#0f172a"/>
+
+  <!-- Brand Typography -->
+  <text x="256" y="260" font-family="sans-serif" font-size="36" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="4">CHRONOS</text>
+  <text x="256" y="295" font-family="sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle" letter-spacing="2">SMART HOROLOGY • GEN 4</text>
+
+  <!-- Accent Divider -->
+  <line x1="156" y1="330" x2="356" y2="330" stroke="#eab308" stroke-width="2"/>
+
+  <!-- Barcode Pattern -->
+  <g fill="#f8fafc">
+    <rect x="156" y="380" width="4" height="50"/>
+    <rect x="166" y="380" width="8" height="50"/>
+    <rect x="180" y="380" width="4" height="50"/>
+    <rect x="190" y="380" width="6" height="50"/>
+    <rect x="202" y="380" width="4" height="50"/>
+    <rect x="212" y="380" width="10" height="50"/>
+    <rect x="228" y="380" width="4" height="50"/>
+    <rect x="238" y="380" width="8" height="50"/>
+    <rect x="252" y="380" width="4" height="50"/>
+    <rect x="262" y="380" width="6" height="50"/>
+    <rect x="274" y="380" width="8" height="50"/>
+    <rect x="288" y="380" width="4" height="50"/>
+    <rect x="298" y="380" width="10" height="50"/>
+    <rect x="314" y="380" width="4" height="50"/>
+    <rect x="324" y="380" width="8" height="50"/>
+    <rect x="338" y="380" width="4" height="50"/>
+    <rect x="348" y="380" width="4" height="50"/>
+  </g>
+  <text x="256" y="450" font-family="monospace" font-size="12" fill="#64748b" text-anchor="middle">8 49201 84029 3</text>
+</svg>

@@ -142,6 +142,9 @@ rightHeadlight.position.z = -0.5;
 
 car.add(leftHeadlight, rightHeadlight);
 
+
+car.scale.set(1, 1, 1);
+
 // Add the complete car to scene
 scene.add(car);
 
@@ -192,13 +195,13 @@ const animate = () => {
   const elapsedTime = clock.getElapsedTime();
 
   // Rotate the entire car as one composite object around Y axis
-  car.rotation.y = elapsedTime * 0.5;
+  // car.rotation.y = elapsedTime * 0.5;
 
   // Spin the wheels around their local axis
-  frontLeftWheel.children[0].rotation.y = elapsedTime * 4;
-  frontRightWheel.children[0].rotation.y = elapsedTime * 4;
-  rearLeftWheel.children[0].rotation.y = elapsedTime * 4;
-  rearRightWheel.children[0].rotation.y = elapsedTime * 4;
+  // frontLeftWheel.children[0].rotation.y = elapsedTime * 4;
+  // frontRightWheel.children[0].rotation.y = elapsedTime * 4;
+  // rearLeftWheel.children[0].rotation.y = elapsedTime * 4;
+  // rearRightWheel.children[0].rotation.y = elapsedTime * 4;
 
   controls.update();
   renderer.render(scene, camera);
