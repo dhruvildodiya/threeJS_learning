@@ -86,15 +86,15 @@ const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
 /**
  * Loads an image texture and applies essential GPU optimizations:
- * - SRGBColorSpace for accurate physical lighting
+ * - Appropriate ColorSpace (sRGB for diffuse/color, NoColorSpace for normal/roughness data maps)
  * - Trilinear Mipmapping (LinearMipmapLinearFilter) to eliminate distance shimmering
  * - Max Anisotropic Filtering to keep textures ultra-crisp at grazing angles
  */
-function loadOptimizedTexture(path, repeatX = 1, repeatY = 1) {
+function loadOptimizedTexture(path, repeatX = 1, repeatY = 1, isColor = true) {
   const texture = textureLoader.load(path);
 
-  // 1. Color Space (sRGB -> Linear conversion in shaders)
-  texture.colorSpace = THREE.SRGBColorSpace;
+  // 1. Color Space (sRGB -> Linear conversion for color, NoColorSpace for data textures like normal/roughness)
+  texture.colorSpace = isColor ? THREE.SRGBColorSpace : THREE.NoColorSpace;
 
   // 2. Mipmapping (pre-calculated levels of detail)
   texture.generateMipmaps = true;
@@ -171,13 +171,21 @@ scene.add(wall);
 // C. REALISTIC PLANET EARTH 
 createPedestal(1.3, 0x38bdf8);
 const earthTexture = loadOptimizedTexture('./textures/earth.jpg');
+const earthNormalMap = loadOptimizedTexture('./textures/earth_normal.jpg', 1, 1, false);
+const earthRoughnessMap = loadOptimizedTexture('./textures/earth_roughness.jpg', 1, 1, false);
+
+const earthMaterial = new THREE.MeshStandardMaterial({
+  map: earthTexture,
+  normalMap: earthNormalMap,
+  normalScale: new THREE.Vector2(0.85, 0.85),
+  roughnessMap: earthRoughnessMap,
+  roughness: 0.9,
+  metalness: 0.1
+});
+
 const planet = new THREE.Mesh(
   new THREE.SphereGeometry(1.05, 64, 32),
-  new THREE.MeshStandardMaterial({
-    map: earthTexture,
-    roughness: 0.45,
-    metalness: 0.1
-  })
+  earthMaterial
 );
 planet.position.set(1.3, 0.1, 0);
 planet.castShadow = true;
