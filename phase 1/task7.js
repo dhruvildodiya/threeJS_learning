@@ -69,21 +69,29 @@ scene.add(camera);
 // Active Camera Pointer
 let activeCamera = camera;
 let isFirstPerson = false;
+let vertigoEnabled = true; // Vertigo / Dolly Zoom camera effect
+const targetFrameHeight = 2.2; // Fixed on-screen subject height in units
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.target.set(0, 1, 0);
 
-// D. Simple Toggle Button & Keyboard Shortcut (Key 'C' or Space)
-const toggleBtn = document.createElement('button');
-toggleBtn.id = 'camera-toggle-btn';
-toggleBtn.innerHTML = '📐 <strong>Main Overview Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 6px;">[Press C to switch]</span>';
-Object.assign(toggleBtn.style, {
+// D. Top Control Panel Buttons & Keyboard Shortcuts
+const buttonContainer = document.createElement('div');
+Object.assign(buttonContainer.style, {
     position: 'fixed',
     top: '20px',
     left: '20px',
     zIndex: '1000',
+    display: 'flex',
+    gap: '10px'
+});
+
+const toggleBtn = document.createElement('button');
+toggleBtn.id = 'camera-toggle-btn';
+toggleBtn.innerHTML = '<strong>Main Overview Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[C]</span>';
+Object.assign(toggleBtn.style, {
     padding: '10px 16px',
     background: 'rgba(15, 23, 42, 0.85)',
     backdropFilter: 'blur(12px)',
@@ -100,6 +108,26 @@ Object.assign(toggleBtn.style, {
     outline: 'none'
 });
 
+const vertigoBtn = document.createElement('button');
+vertigoBtn.id = 'vertigo-toggle-btn';
+vertigoBtn.innerHTML = '🌀 <strong>Vertigo Effect (Dolly Zoom): ON</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[V]</span>';
+Object.assign(vertigoBtn.style, {
+    padding: '10px 16px',
+    background: 'rgba(15, 23, 42, 0.85)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid #38bdf8',
+    borderRadius: '10px',
+    color: '#38bdf8',
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    boxShadow: '0 0 16px rgba(56, 189, 248, 0.35)',
+    transition: 'all 0.2s ease',
+    outline: 'none'
+});
+
 function toggleCamera() {
     isFirstPerson = !isFirstPerson;
     if (isFirstPerson) {
@@ -107,7 +135,7 @@ function toggleCamera() {
         controls.object = perspectiveCamera;
         controls.target.copy(lookTarget);
         cameraHelper.visible = false;
-        toggleBtn.innerHTML = '🎥 <strong>First-Person Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 6px;">[Press C to switch]</span>';
+        toggleBtn.innerHTML = '🎥 <strong>First-Person Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[C]</span>';
         toggleBtn.style.borderColor = '#38bdf8';
         toggleBtn.style.color = '#38bdf8';
         toggleBtn.style.boxShadow = '0 0 16px rgba(56, 189, 248, 0.35)';
@@ -116,21 +144,50 @@ function toggleCamera() {
         controls.object = camera;
         controls.target.set(0, 1, 0);
         cameraHelper.visible = true;
-        toggleBtn.innerHTML = '📐 <strong>Main Overview Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 6px;">[Press C to switch]</span>';
+        toggleBtn.innerHTML = '📐 <strong>Main Overview Camera</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[C]</span>';
         toggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
         toggleBtn.style.color = '#f8fafc';
         toggleBtn.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.4)';
     }
 }
 
+function toggleVertigo() {
+    vertigoEnabled = !vertigoEnabled;
+    if (vertigoEnabled) {
+        vertigoBtn.innerHTML = '🌀 <strong>Vertigo Effect (Dolly Zoom): ON</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[V]</span>';
+        vertigoBtn.style.borderColor = '#38bdf8';
+        vertigoBtn.style.color = '#38bdf8';
+        vertigoBtn.style.boxShadow = '0 0 16px rgba(56, 189, 248, 0.35)';
+    } else {
+        vertigoBtn.innerHTML = '🌀 <strong>Vertigo Effect: OFF</strong> <span style="opacity: 0.6; font-size: 11px; margin-left: 4px;">[V]</span>';
+        vertigoBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        vertigoBtn.style.color = '#94a3b8';
+        vertigoBtn.style.boxShadow = 'none';
+
+        // Reset perspective camera to standard 45 FOV
+        perspectiveCamera.fov = 45;
+        perspectiveCamera.position.set(0, 2.0, 7.5);
+        perspectiveCamera.updateProjectionMatrix();
+        cameraHelper.update();
+    }
+}
+
 toggleBtn.addEventListener('click', toggleCamera);
+vertigoBtn.addEventListener('click', toggleVertigo);
+
 window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyC' || e.code === 'Space') {
         e.preventDefault();
         toggleCamera();
+    } else if (e.code === 'KeyV') {
+        e.preventDefault();
+        toggleVertigo();
     }
 });
-document.body.appendChild(toggleBtn);
+
+buttonContainer.appendChild(toggleBtn);
+buttonContainer.appendChild(vertigoBtn);
+document.body.appendChild(buttonContainer);
 
 // ============================================================================
 // 3. RENDERER WITH TONE MAPPING
@@ -453,8 +510,33 @@ const animate = () => {
     coreMesh.rotation.y = -elapsedTime * 0.6;
     ring.rotation.z = elapsedTime * 0.3;
 
-    // Keep camera helper frustum updated
-    cameraHelper.update();
+    // ------------------------------------------------------------------------
+    // VERTIGO EFFECT (DOLLY ZOOM) MATHEMATICS
+    // ------------------------------------------------------------------------
+    if (vertigoEnabled) {
+        // 1. Oscillate FOV smoothly between 18° (Telephoto) and 95° (Wide Angle)
+        const sinWave = (Math.sin(elapsedTime * 0.8) + 1) / 2; // 0.0 to 1.0
+        const currentFov = THREE.MathUtils.lerp(18, 95, sinWave);
+        perspectiveCamera.fov = currentFov;
+
+        /**
+         * 2. DOLLY ZOOM FORMULA:
+         * To keep the subject at a constant on-screen frame height (H):
+         * distance = (H / 2) / tan(FOV_radians / 2)
+         */
+        const fovRad = THREE.MathUtils.degToRad(currentFov);
+        const targetDistance = (targetFrameHeight / 2) / Math.tan(fovRad / 2);
+
+        // Reposition perspective camera along Z to trade off FOV with distance
+        perspectiveCamera.position.z = lookTarget.z + targetDistance;
+        perspectiveCamera.position.y = lookTarget.y + 0.4 * Math.sin(fovRad);
+        perspectiveCamera.lookAt(lookTarget);
+
+        perspectiveCamera.updateProjectionMatrix();
+        cameraHelper.update();
+    } else {
+        cameraHelper.update();
+    }
 
     // Update orbit controls damping
     controls.update();
