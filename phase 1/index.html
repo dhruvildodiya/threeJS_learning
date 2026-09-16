@@ -1,24 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js & WebGL Fundamentals</title>
+  <title>MERIDIAN — Precision Automatic Horology</title>
+  <meta name="description" content="Interactive 3D procedural luxury mechanical watch configurator with real-time automatic movement, exploded assembly, and studio lighting." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet" />
-
+</head>
 <body>
-  <!-- The WebGL canvas -->
   <canvas id="webgl-canvas"></canvas>
 
  
+  <!-- Bottom Floating Minimal Control Bar -->
+  <div class="bottom-bar">
+    
+   
 
-  <script type="module" src="./task7.js"></script>
+    <!-- Production View Actions -->
+    <div class="bar-section">
+      <span class="section-title">EXPLORE</span>
+      <div class="action-buttons">
+        <button id="btn-explode" class="action-btn" title="Inspect internal engineered assembly">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Exploded View</span>
+        </button>
+        <button id="btn-turntable" class="action-btn active" title="Toggle continuous rotation">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <span>Turntable</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+ 
+
+  <script type="module" src="./final.js"></script>
 </body>
-
 </html>

@@ -18,7 +18,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
  *    - intersection.face     (Hit polygon vertex normal & face index)
  * 6. Hover Detection & Dynamic Highlight
  * 7. Click Detection & Selection Feedback
- * 8. Real-time 3D Object Information HUD Display
  * ============================================================================
  */
 
@@ -51,6 +50,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.target.set(0, 0.5, 0);
+controls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent camera from going below the ground plane
 
 // ============================================================================
 // 3. RENDERER WITH TONE MAPPING & SHADOWS
@@ -203,8 +203,12 @@ objectsData.forEach((data) => {
         type: data.type,
         baseColor: data.color,
         emissiveColor: data.emissiveColor,
+        baseX: data.x,
+        targetX: data.x,
         baseY: 0.3,
         targetY: 0.3,
+        baseZ: 0,
+        targetZ: 0,
         baseScale: 1.0,
         targetScale: 1.0,
         isSelected: false,
@@ -242,7 +246,7 @@ infoOverlay.innerHTML = `
     <div style="position: fixed; top: 20px; left: 20px; z-index: 1000; max-width: 360px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 18px 20px; color: #f8fafc; font-family: 'Outfit', sans-serif; box-shadow: 0 12px 36px rgba(0,0,0,0.5); pointer-events: none;">
         <div style="display: inline-block; background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; margin-bottom: 8px;">Phase 1 • Task 10</div>
         <h2 style="font-size: 16px; font-weight: 700; margin: 0 0 4px 0; color: #ffffff;">Raycasting & Interaction</h2>
-        <p style="font-size: 12px; color: #94a3b8; margin: 0 0 12px 0;">Hover and click on any 3D object to test ray intersection.</p>
+        <p style="font-size: 12px; color: #94a3b8; margin: 0 0 12px 0;">Hover to glow, click to spin, or drag objects around in 3D.</p>
 
         <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.06); font-size: 12px; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; justify-content: space-between;">
@@ -290,6 +294,14 @@ const mouse = new THREE.Vector2(-1000, -1000); // Default off-screen
 let hoveredObject = null;
 let selectedObject = null;
 
+// Dragging State & Helpers
+const dragPlane = new THREE.Plane();
+const planeIntersection = new THREE.Vector3();
+const dragOffset = new THREE.Vector3();
+let draggedObject = null;
+let isDragging = false;
+let pointerDownPos = { x: 0, y: 0 };
+
 function resetObjectVisuals(mesh) {
     if (!mesh) return;
     mesh.userData.targetScale = mesh.userData.baseScale;
@@ -298,8 +310,62 @@ function resetObjectVisuals(mesh) {
     mesh.material.emissiveIntensity = 0.0;
 }
 
+function handleObjectSelect(mesh) {
+    if (selectedObject && selectedObject !== mesh) {
+        resetObjectVisuals(selectedObject);
+    }
+
+    selectedObject = mesh;
+    
+    // Visual Selection Ring Feedback
+    selectionRing.position.x = selectedObject.position.x;
+    selectionRing.position.z = selectedObject.position.z;
+    selectionRing.visible = true;
+
+    // Trigger interactive jump & spin impulse
+    selectedObject.userData.targetY = selectedObject.position.y + 0.6;
+    selectedObject.userData.spinSpeed = 6.0; // Temporary high-speed spin burst
+
+    hudStatus.innerHTML = `<span style="color: #22c55e; font-weight: 700;">Selected!</span>`;
+}
+
 // ----------------------------------------------------------------------------
-// A. POINTER MOVE (HOVER DETECTION)
+// A. POINTER DOWN (START DRAG OR CLICK - TOUCH & MOUSE COMPATIBLE)
+// ----------------------------------------------------------------------------
+window.addEventListener('pointerdown', (event) => {
+    // 1. Immediately update Normalized Device Coordinates (NDC) for touch/mouse
+    mouse.x = (event.clientX / sizes.width) * 2 - 1;
+    mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+
+    pointerDownPos.x = event.clientX;
+    pointerDownPos.y = event.clientY;
+
+    // 2. Perform immediate raycast (crucial for mobile where touch starts without prior hover)
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactiveObjects, false);
+    if (intersects.length > 0) {
+        hoveredObject = intersects[0].object;
+    }
+
+    if (hoveredObject) {
+        draggedObject = hoveredObject;
+        isDragging = true;
+        controls.enabled = false; // Disable OrbitControls while dragging
+
+        // Create drag plane facing camera positioned at the object's position
+        const cameraDir = new THREE.Vector3();
+        camera.getWorldDirection(cameraDir);
+        dragPlane.setFromNormalAndCoplanarPoint(cameraDir.negate(), draggedObject.position);
+
+        // Calculate offset between hit point and object position
+        if (raycaster.ray.intersectPlane(dragPlane, planeIntersection)) {
+            dragOffset.copy(draggedObject.position).sub(planeIntersection);
+        }
+    }
+});
+
+// ----------------------------------------------------------------------------
+// B. POINTER MOVE (HOVER DETECTION & DRAG UPDATE)
 // ----------------------------------------------------------------------------
 window.addEventListener('pointermove', (event) => {
     /**
@@ -307,33 +373,47 @@ window.addEventListener('pointermove', (event) => {
      * X: 0 (left) -> window.innerWidth (right)  =>  -1.0 (left) to +1.0 (right)
      * Y: 0 (top)  -> window.innerHeight (bottom) =>  +1.0 (top) to -1.0 (bottom) [Y is inverted in WebGL]
      */
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / sizes.width) * 2 - 1;
+    mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+
+    // If dragging an object, update its target position in 3D world space
+    if (isDragging && draggedObject) {
+        raycaster.setFromCamera(mouse, camera);
+        if (raycaster.ray.intersectPlane(dragPlane, planeIntersection)) {
+            const newPos = planeIntersection.clone().add(dragOffset);
+            draggedObject.userData.targetX = newPos.x;
+            // Prevent the object from dipping below the floor / base plane (floor is at y = -1.0)
+            draggedObject.userData.targetY = Math.max(newPos.y, -0.3);
+            draggedObject.userData.targetZ = newPos.z;
+
+            hudStatus.innerHTML = `<span style="color: #fbbf24; font-weight: 700;">Dragging</span>`;
+        }
+    }
 });
 
 // ----------------------------------------------------------------------------
-// B. CLICK DETECTION (OBJECT SELECTION & REACTION)
+// C. POINTER UP (END DRAG OR CONFIRM CLICK)
 // ----------------------------------------------------------------------------
-window.addEventListener('click', () => {
-    // Only process click if currently hovering over an interactive object
-    if (hoveredObject) {
-        // If selecting a different object, cleanly reset the previous one!
-        if (selectedObject && selectedObject !== hoveredObject) {
-            resetObjectVisuals(selectedObject);
+window.addEventListener('pointerup', (event) => {
+    const distMoved = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+
+    if (isDragging) {
+        isDragging = false;
+        controls.enabled = true; // Re-enable camera OrbitControls
+
+        if (draggedObject) {
+            // If pointer barely moved, treat it as a click/tap
+            if (distMoved < 6) {
+                handleObjectSelect(draggedObject);
+            } else {
+                // Drag completed: update object's resting base position to its new position in space
+                draggedObject.userData.baseX = draggedObject.userData.targetX;
+                draggedObject.userData.baseY = draggedObject.userData.targetY;
+                draggedObject.userData.baseZ = draggedObject.userData.targetZ;
+            }
         }
-
-        selectedObject = hoveredObject;
-        
-        // Visual Selection Ring Feedback
-        selectionRing.position.x = selectedObject.position.x;
-        selectionRing.visible = true;
-
-        // Trigger interactive jump & spin impulse
-        selectedObject.userData.targetY = selectedObject.userData.baseY + 0.6;
-        selectedObject.userData.spinSpeed = 6.0; // Temporary high-speed spin burst
-
-        hudStatus.innerHTML = `<span style="color: #22c55e; font-weight: 700;">Selected!</span>`;
-    } else {
+        draggedObject = null;
+    } else if (distMoved < 6 && !hoveredObject) {
         // Clicked on empty space -> Deselect & reset previously selected object
         if (selectedObject) {
             resetObjectVisuals(selectedObject);
@@ -341,6 +421,22 @@ window.addEventListener('click', () => {
         selectedObject = null;
         selectionRing.visible = false;
         hudStatus.innerHTML = `<span style="color: #94a3b8;">Idle</span>`;
+    }
+});
+
+// ----------------------------------------------------------------------------
+// D. POINTER CANCEL / LEAVE (HANDLE TOUCH INTERRUPTION)
+// ----------------------------------------------------------------------------
+window.addEventListener('pointercancel', () => {
+    isDragging = false;
+    controls.enabled = true;
+    draggedObject = null;
+});
+
+window.addEventListener('pointerleave', (event) => {
+    // If not dragging and pointer left the window, reset off-screen
+    if (!isDragging && event.pointerType === 'mouse') {
+        mouse.set(-1000, -1000);
     }
 });
 
@@ -368,7 +464,7 @@ const animate = () => {
     // ------------------------------------------------------------------------
     // 3. HOVER DETECTION & HIGHLIGHTING
     // ------------------------------------------------------------------------
-    if (intersects.length > 0) {
+    if (intersects.length > 0 && !isDragging) {
         const topHit = intersects[0];
         const hitMesh = topHit.object;
 
@@ -380,7 +476,7 @@ const animate = () => {
             }
 
             hoveredObject = hitMesh;
-            canvas.style.cursor = 'pointer'; // Change mouse cursor to pointer
+            canvas.style.cursor = 'grab'; // Change mouse cursor to grab
         }
 
         // Apply Hover Highlight on current hit object
@@ -402,13 +498,13 @@ const animate = () => {
         if (!selectedObject || selectedObject !== hoveredObject) {
             hudStatus.innerHTML = `<span style="color: #38bdf8;">Hovering</span>`;
         }
-    } else {
+    } else if (!isDragging) {
         // No object intersected (Mouse is over empty background)
         if (hoveredObject) {
             if (hoveredObject !== selectedObject) {
                 resetObjectVisuals(hoveredObject);
             } else {
-                // If it was selected, lower it back down from hover height
+                // If it was selected, lower it back down from hover height to its base position
                 hoveredObject.userData.targetY = hoveredObject.userData.baseY;
                 hoveredObject.userData.targetScale = hoveredObject.userData.baseScale;
             }
@@ -428,14 +524,16 @@ const animate = () => {
     }
 
     // ------------------------------------------------------------------------
-    // 4. ANIMATE OBJECTS (Rotations, Smooth Lerping & Selection Halo)
+    // 4. ANIMATE OBJECTS (Positions, Rotations, Smooth Lerping & Selection Halo)
     // ------------------------------------------------------------------------
     interactiveObjects.forEach((mesh) => {
-        // Smoothly interpolate position Y and scale towards their target values
-        mesh.position.y = THREE.MathUtils.lerp(mesh.position.y, mesh.userData.targetY, delta * 8.0);
+        // Smoothly interpolate position (X, Y, Z) towards target values
+        mesh.position.x = THREE.MathUtils.lerp(mesh.position.x, mesh.userData.targetX, delta * 10.0);
+        mesh.position.y = THREE.MathUtils.lerp(mesh.position.y, mesh.userData.targetY, delta * 10.0);
+        mesh.position.z = THREE.MathUtils.lerp(mesh.position.z, mesh.userData.targetZ, delta * 10.0);
         
-        // Settle jump back to base position after click
-        if (mesh.position.y > mesh.userData.baseY + 0.3) {
+        // Settle jump back to base position after click impulse
+        if (!isDragging && mesh.userData.spinSpeed > 1.5 && mesh.position.y > mesh.userData.baseY + 0.3) {
             mesh.userData.targetY = mesh.userData.baseY;
         }
 
@@ -447,8 +545,13 @@ const animate = () => {
         mesh.userData.spinSpeed = THREE.MathUtils.lerp(mesh.userData.spinSpeed, 0.5, delta * 3.0);
     });
 
-    // Spin selection halo ring
-    if (selectionRing.visible) {
+    // Spin selection halo ring and follow selected object in 3D space
+    if (selectionRing.visible && selectedObject) {
+        selectionRing.position.set(
+            selectedObject.position.x,
+            selectedObject.position.y - 0.75,
+            selectedObject.position.z
+        );
         selectionRing.rotation.z = elapsedTime * 2.0;
     }
 
