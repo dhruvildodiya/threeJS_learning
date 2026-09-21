@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Phase 2 — Advanced 3D Graphics</title>
-  <meta name="description" content="Phase 2 Three.js development workspace powered by Vite." />
+  <title>Three.js Phase 2 — 3D Object Manipulation</title>
+  <meta name="description" content="3D Object Transformation & Direct Manipulation in Three.js" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -14,7 +14,126 @@
   <canvas id="webgl-canvas"></canvas>
 
 
+  <!-- Task 1 HTML -->
+  <!-- <div class="hud-overlay">
+    <div class="hud-title">🎮 3D Gun Manipulation</div>
+    <div class="hud-list">
+      <div class="hud-item"><span>Toggle 3D Gizmo</span><span class="hud-key">T</span></div>
+      <div class="hud-item"><span>Orbit Controls (Rotate/Pan/Zoom)</span><span class="hud-key">O</span></div>
+      <div class="hud-item"><span>Gizmo Mode (Move / Rot / Scale)</span><span class="hud-key">1 / 2 / 3</span></div>
+      <div class="hud-item"><span>Move X / Z (Depth & Pan)</span><span class="hud-key">W A S D</span></div>
+      <div class="hud-item"><span>Elevate Y (Up / Down)</span><span class="hud-key">Q / E</span></div>
+      <div class="hud-item"><span>Rotate Model</span><span class="hud-key">Mouse Drag</span></div>
+      <div class="hud-item"><span>Scale Model</span><span class="hud-key">Wheel / + -</span></div>
+      <div class="hud-item"><span>Toggle Snapping Grid</span><span class="hud-key">G</span></div>
+      <div class="hud-item"><span>Reset Transform</span><span class="hud-key">R / DblClick BG</span></div>
+      <div class="hud-item"><span>Shoot & Recoil</span><span class="hud-key">DblClick Gun</span></div>
+    </div>
+  </div>
 
-  <script type="module" src="./task1.js"></script>
+  <div class="animation-toolbar">
+    <div class="toolbar-header">
+      <span class="toolbar-badge" id="anim-state-badge">STATE: IDLE</span>
+      <span class="toolbar-title">⚡ Animation Suite</span>
+    </div>
+    <div class="toolbar-buttons">
+      <button class="anim-btn" id="btn-inspect-scope">🔍 Inspect Scope</button>
+      <button class="anim-btn" id="btn-inspect-barrel">🎯 Inspect Barrel</button>
+      <button class="anim-btn" id="btn-inspect-trigger">🔘 Inspect Trigger</button>
+      <button class="anim-btn" id="btn-reload-sequence">🔄 Reload Sequence</button>
+      <button class="anim-btn" id="btn-exploded-view">💥 Exploded View</button>
+      <button class="anim-btn" id="btn-turntable">🎪 Turntable Orbit</button>
+      <button class="anim-btn" id="btn-reset-view">🏠 Reset View</button>
+    </div>
+    <div class="timeline-scrubber-container">
+      <div class="scrubber-label">
+        <span>Timeline Scrubber (GSAP)</span>
+        <span id="scrub-time-val">0.00s</span>
+      </div>
+      <input type="range" id="timeline-slider" min="0" max="1" step="0.001" value="0" />
+    </div>
+  </div>
+
+  <div id="annotation-pin" class="annotation-pin hidden">
+    <div class="pin-dot"></div>
+    <div class="pin-card">
+      <div class="pin-title" id="pin-title">Component</div>
+      <div class="pin-desc" id="pin-desc">Details</div>
+    </div>
+  </div>
+
+  <div class="scroll-storyboard-container" id="scroll-container">
+    <div class="scroll-section" data-step="0">
+      <div class="scroll-card">
+        <h3>📜 Scroll Animation 1/3</h3>
+        <p>Hero Overview & Orbit Introduction</p>
+      </div>
+    </div>
+    <div class="scroll-section" data-step="1">
+      <div class="scroll-card">
+        <h3>💥 Scroll Animation 2/3</h3>
+        <p>Exploded Mechanics: Scope, Bolt & Wrap</p>
+      </div>
+    </div>
+    <div class="scroll-section" data-step="2">
+      <div class="scroll-card">
+        <h3>🎯 Scroll Animation 3/3</h3>
+        <p>Aim Down Sight Alignment with Target</p>
+      </div>
+    </div>
+  </div> -->
+ 
+  <!-- ===================================================================== -->
+ 
+ 
+ 
+ 
+ 
+ 
+  <!-- TASK 2: SKELETAL ANIMATION & ANIMATIONMIXER STUDIO                    -->
+  <!-- ===================================================================== -->
+  <div class="hud-overlay">
+    <div class="hud-title">🏃 Skeletal Animation Studio</div>
+    <div class="hud-list">
+      <div class="hud-item"><span>Orbit Controls</span><span class="hud-key">Mouse Drag</span></div>
+      <div class="hud-item"><span>Zoom</span><span class="hud-key">Wheel</span></div>
+      <div class="hud-item"><span>Pan Scene</span><span class="hud-key">Right Click</span></div>
+      <div class="hud-item"><span>Toggle Bones</span><span class="hud-key">B</span></div>
+      <div class="hud-item"><span>Play / Pause</span><span class="hud-key">Space</span></div>
+    </div>
+  </div>
+
+  <div class="mixer-dashboard">
+    <div class="mixer-header">
+      <div class="mixer-title">
+        <span>⚡ THREE.AnimationMixer</span>
+        <span class="mixer-badge" id="badge-clip-name">Clip: mixamo_com</span>
+      </div>
+      <span class="mixer-badge" id="badge-playback-state">STATE: PLAYING</span>
+    </div>
+
+    <div class="mixer-controls-row">
+      <button class="mixer-btn active" id="btn-play">▶ Play</button>
+      <button class="mixer-btn" id="btn-pause">⏸ Pause</button>
+      <button class="mixer-btn" id="btn-stop">⏹ Stop (Reset)</button>
+      <button class="mixer-btn" id="btn-toggle-skeleton">🦴 Skeleton Rig</button>
+      <button class="mixer-btn" id="btn-loop-mode">🔁 Loop: Repeat</button>
+      <button class="mixer-btn" id="btn-reset-cam">🎥 Reset Cam</button>
+    </div>
+
+    <div class="mixer-slider-group">
+      <span class="mixer-slider-label">Timeline</span>
+      <input type="range" class="mixer-slider" id="timeline-scrubber" min="0" max="1" step="0.001" value="0" />
+      <span class="mixer-val" id="time-display">0.00s / 0.00s</span>
+    </div>
+
+    <div class="mixer-slider-group">
+      <span class="mixer-slider-label">Speed</span>
+      <input type="range" class="mixer-slider" id="speed-slider" min="0.1" max="2.5" step="0.05" value="1.0" />
+      <span class="mixer-val" id="speed-display">1.00x</span>
+    </div>
+  </div>
+
+  <script type="module" src="./task2.js"></script>
 </body>
 </html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Three.js Phase 2 — AnimationMixer & Skeletal Animation</title>
+  <meta name="description" content="Skeletal Animation, AnimationMixer, AnimationAction, Playback, and Bone Hierarchy in Three.js" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+  <style>
+    /* Dedicated Skeletal Animation Control Panel */
+    .mixer-dashboard {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(94vw, 760px);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 18px 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      color: #f8fafc;
+      font-family: var(--font-sans);
+    }
+    .mixer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+    .mixer-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mixer-badge {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+    .mixer-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .mixer-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f8fafc;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .mixer-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+    .mixer-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .mixer-slider-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .mixer-slider-label {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: #94a3b8;
+      min-width: 80px;
+    }
+    .mixer-slider {
+      flex: 1;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+    .mixer-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #38bdf8;
+      min-width: 50px;
+      text-align: right;
+    }
+    .nav-task-switch {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+    }
+    .nav-task-switch:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="webgl-canvas"></canvas>
+
+  <a href="./index.html" class="nav-task-switch">← Back to Task 1 (Gun Viewer)</a>
+
+  <!-- Top Info HUD -->
+  <div class="hud-overlay">
+    <div class="hud-title">🏃 Skeletal Animation Studio</div>
+    <div class="hud-list">
+      <div class="hud-item"><span>Orbit Controls</span><span class="hud-key">Mouse Drag</span></div>
+      <div class="hud-item"><span>Zoom</span><span class="hud-key">Wheel</span></div>
+      <div class="hud-item"><span>Pan Scene</span><span class="hud-key">Right Click</span></div>
+      <div class="hud-item"><span>Toggle Bones</span><span class="hud-key">B</span></div>
+      <div class="hud-item"><span>Play / Pause</span><span class="hud-key">Space</span></div>
+    </div>
+  </div>
+
+  <!-- Interactive AnimationMixer Dashboard -->
+  <div class="mixer-dashboard">
+    <div class="mixer-header">
+      <div class="mixer-title">
+        <span>⚡ THREE.AnimationMixer</span>
+        <span class="mixer-badge" id="badge-clip-name">Clip: mixamo_com</span>
+      </div>
+      <span class="mixer-badge" id="badge-playback-state">STATE: PLAYING</span>
+    </div>
+
+    <!-- Controls Row: Play, Pause, Stop, Skeleton Helper, Loop Modes -->
+    <div class="mixer-controls-row">
+      <button class="mixer-btn active" id="btn-play">▶ Play</button>
+      <button class="mixer-btn" id="btn-pause">⏸ Pause</button>
+      <button class="mixer-btn" id="btn-stop">⏹ Stop (Reset)</button>
+      <button class="mixer-btn" id="btn-toggle-skeleton">🦴 Skeleton Rig</button>
+      <button class="mixer-btn" id="btn-loop-mode">🔁 Loop: Repeat</button>
+      <button class="mixer-btn" id="btn-reset-cam">🎥 Reset Cam</button>
+    </div>
+
+    <!-- Timeline Scrubber -->
+    <div class="mixer-slider-group">
+      <span class="mixer-slider-label">Timeline</span>
+      <input type="range" class="mixer-slider" id="timeline-scrubber" min="0" max="1" step="0.001" value="0" />
+      <span class="mixer-val" id="time-display">0.00s / 0.00s</span>
+    </div>
+
+    <!-- Speed Multiplier Slider -->
+    <div class="mixer-slider-group">
+      <span class="mixer-slider-label">Speed</span>
+      <input type="range" class="mixer-slider" id="speed-slider" min="0.1" max="2.5" step="0.05" value="1.0" />
+      <span class="mixer-val" id="speed-display">1.00x</span>
+    </div>
+  </div>
+
+  <script type="module" src="./task2.js"></script>
+</body>
+</html>
