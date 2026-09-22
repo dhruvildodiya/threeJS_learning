@@ -30,15 +30,54 @@ gsap.ticker.add((time) => {
 gsap.ticker.lagSmoothing(0);
 
 // ============================================================================
-// 1. SCENE, RENDERER, CAMERA SETUP
+// 1. RESPONSIVE CAMERA CONFIG & SCENE SETUP
 // ============================================================================
+export function getResponsiveCameraConfig() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const aspect = width / height;
+
+  if (aspect < 0.75) {
+    // Mobile portrait (smartphones): elevate watch into upper 55% of viewport
+    return {
+      fov: 44,
+      pos: { x: 0, y: 0.78, z: 2.45 },
+      target: { x: 0, y: 0.12, z: 0 },
+      hero: { x: 0, y: 0.78, z: 2.45 },
+      dial: { x: 0, y: 0.75, z: 0.75 },
+      clasp: { x: -0.35, y: 0.35, z: -1.2 },
+    };
+  } else if (aspect < 1.05) {
+    // Tablet / square screen
+    return {
+      fov: 42,
+      pos: { x: 0, y: 0.6, z: 1.85 },
+      target: { x: 0, y: 0.04, z: 0 },
+      hero: { x: 0, y: 0.6, z: 1.85 },
+      dial: { x: 0, y: 0.6, z: 0.5 },
+      clasp: { x: -0.4, y: 0.2, z: -0.9 },
+    };
+  } else {
+    // Desktop landscape
+    return {
+      fov: 38,
+      pos: { x: 0, y: 0.55, z: 1.4 },
+      target: { x: 0, y: 0.04, z: 0 },
+      hero: { x: 0, y: 0.55, z: 1.4 },
+      dial: { x: 0, y: 0.6, z: 0.35 },
+      clasp: { x: -0.4, y: 0.15, z: -0.7 },
+    };
+  }
+}
+
 const canvas = document.querySelector('#webgl-canvas');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0d14);
 scene.fog = new THREE.FogExp2(0x0a0d14, 0.035);
 
-const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.05, 50);
-camera.position.set(0, 0.55, 1.4);
+const initCam = getResponsiveCameraConfig();
+const camera = new THREE.PerspectiveCamera(initCam.fov, window.innerWidth / window.innerHeight, 0.05, 50);
+camera.position.set(initCam.pos.x, initCam.pos.y, initCam.pos.z);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -55,6 +94,15 @@ controls.target.set(0, 0.04, 0);
 controls.minDistance = 0.45;
 controls.maxDistance = 3.5;
 controls.maxPolarAngle = Math.PI / 2 + 0.05;
+
+// Touch configuration: enable 2-finger rotate/pan on touch devices so 1-finger scrolls smoothly
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (isTouchDevice) {
+  controls.touches = {
+    ONE: THREE.TOUCH.NONE,
+    TWO: THREE.TOUCH.DOLLY_ROTATE,
+  };
+}
 controls.update();
 
 window.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -65,10 +113,11 @@ window.addEventListener('contextmenu', (e) => e.preventDefault());
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
+const isMobile = window.innerWidth < 768;
 const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
 keyLight.position.set(2.5, 3.5, 2.5);
 keyLight.castShadow = true;
-keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.mapSize.set(isMobile ? 1024 : 2048, isMobile ? 1024 : 2048);
 keyLight.shadow.bias = -0.0001;
 scene.add(keyLight);
 
@@ -295,9 +344,23 @@ const partTitle = document.getElementById('part-title');
 const partDesc = document.getElementById('part-desc');
 const specSelectedPart = document.getElementById('spec-selected-part');
 
+// Click / Tap Detection: Select / Deselect part (safeguarded against scroll drags)
+let pointerDownPos = { x: 0, y: 0 };
+let isDragMove = false;
+
+window.addEventListener('pointerdown', (e) => {
+  pointerDownPos.x = e.clientX;
+  pointerDownPos.y = e.clientY;
+  isDragMove = false;
+});
+
 window.addEventListener('pointermove', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  if (Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y) > 10) {
+    isDragMove = true;
+  }
 });
 
 function handleHover() {
@@ -372,8 +435,10 @@ function updateScreenTag(worldPos, title) {
   screenTag.classList.add('visible');
 }
 
-// Click Detection: Select / Deselect part
-window.addEventListener('pointerdown', (e) => {
+window.addEventListener('pointerup', (e) => {
+  // If the user was dragging or scrolling with touch, ignore selection
+  if (isDragMove) return;
+
   if (e.target.closest('.studio-deck') || e.target.closest('.site-header') || e.target.closest('.product-info-panel')) {
     return;
   }
@@ -490,17 +555,16 @@ const cameraButtons = document.querySelectorAll('[data-cam]');
 cameraButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
     cameraButtons.forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-
+    const cfg = getResponsiveCameraConfig();
     const mode = btn.dataset.cam;
     if (mode === 'hero') {
-      gsap.to(camera.position, { x: 0, y: 0.55, z: 1.4, duration: 1.2, ease: 'power2.inOut' });
-      gsap.to(controls.target, { x: 0, y: 0.04, z: 0, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(camera.position, { ...cfg.hero, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(controls.target, { ...cfg.target, duration: 1.2, ease: 'power2.inOut' });
     } else if (mode === 'dial') {
-      gsap.to(camera.position, { x: 0, y: 0.6, z: 0.35, duration: 1.2, ease: 'power2.inOut' });
-      gsap.to(controls.target, { x: 0, y: 0.04, z: 0, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(camera.position, { ...cfg.dial, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(controls.target, { ...cfg.target, duration: 1.2, ease: 'power2.inOut' });
     } else if (mode === 'clasp') {
-      gsap.to(camera.position, { x: -0.4, y: 0.15, z: -0.7, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(camera.position, { ...cfg.clasp, duration: 1.2, ease: 'power2.inOut' });
       gsap.to(controls.target, { x: 0, y: -0.02, z: -0.3, duration: 1.2, ease: 'power2.inOut' });
     }
   });
@@ -581,7 +645,9 @@ animate();
 // 10. RESPONSIVE RESIZE
 // ============================================================================
 window.addEventListener('resize', () => {
+  const cfg = getResponsiveCameraConfig();
   camera.aspect = window.innerWidth / window.innerHeight;
+  camera.fov = cfg.fov;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

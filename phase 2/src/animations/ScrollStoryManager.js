@@ -54,12 +54,14 @@ export class ScrollStoryManager {
     // Step 1: Section 1 (Hero) -> Section 2 (Showcase/Features)
     // Watch glides into frame, pivots to show dial face and profile
     // ------------------------------------------------------------------------
+    const isMobile = window.innerWidth < 768;
+
     tl.to(
       this.watchModel.root.position,
       {
-        x: 0.38,
-        y: 0.05,
-        z: 0.1,
+        x: isMobile ? 0 : 0.38,
+        y: isMobile ? 0.24 : 0.05, // Elevated on mobile to sit above bottom card
+        z: isMobile ? 0.05 : 0.1,
         ease: 'power1.inOut',
       },
       'stage-showcase'
@@ -80,8 +82,8 @@ export class ScrollStoryManager {
       this.cameraManager.camera.position,
       {
         x: 0,
-        y: 0.35,
-        z: 1.55,
+        y: isMobile ? 0.52 : 0.35,
+        z: isMobile ? 2.3 : 1.55,
         ease: 'power1.inOut',
       },
       'stage-showcase'
@@ -104,7 +106,7 @@ export class ScrollStoryManager {
       this.watchModel.root.position,
       {
         x: 0,
-        y: 0,
+        y: isMobile ? 0.20 : 0, // Keep exploded cluster in upper viewport
         z: 0,
         ease: 'power2.inOut',
       },
@@ -126,8 +128,8 @@ export class ScrollStoryManager {
       this.cameraManager.camera.position,
       {
         x: 0,
-        y: 0.3,
-        z: 1.75,
+        y: isMobile ? 0.45 : 0.3,
+        z: isMobile ? 2.55 : 1.75,
         ease: 'power2.inOut',
       },
       'stage-explode'
@@ -251,8 +253,8 @@ export class ScrollStoryManager {
       this.cameraManager.camera.position,
       {
         x: 0,
-        y: 0.05,
-        z: 1.4,
+        y: isMobile ? 0.15 : 0.05,
+        z: isMobile ? 2.2 : 1.4,
         ease: 'power2.inOut',
       },
       'stage-configurator'
@@ -295,5 +297,79 @@ export class ScrollStoryManager {
         if (this.onLeaveConfigurator) this.onLeaveConfigurator();
       },
     });
+
+    // ------------------------------------------------------------------------
+    // Mobile Only: Horizontal Sideways Slide-In (Right) & Slide-Out (Left)
+    // Anchored in bottom 40% with zero vertical up/down movement
+    // Desktop screens remain completely untouched with natural layout.
+    // ------------------------------------------------------------------------
+    const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+
+    if (isMobileViewport) {
+      const storyCards = [
+        { trigger: '#section-hero', card: '.hero-content' },
+        { trigger: '#section-showcase', card: '#section-showcase .story-card' },
+        { trigger: '#section-explode', card: '#section-explode .story-card' },
+        { trigger: '#section-configurator', card: '#section-configurator .story-card' },
+      ];
+
+      const enterFromX = window.innerWidth * 0.95;
+      const exitToX = -window.innerWidth * 0.95;
+
+      storyCards.forEach(({ trigger, card }, idx) => {
+        const el = document.querySelector(card);
+        if (!el) return;
+
+        if (idx === 0) {
+          // Hero content starts in center and scrolls off to the left
+          gsap.to(el, {
+            opacity: 0,
+            x: exitToX,
+            y: 0,
+            ease: 'power1.in',
+            scrollTrigger: {
+              trigger: trigger,
+              start: 'center 40%',
+              end: 'bottom 10%',
+              scrub: 0.8,
+            },
+          });
+        } else {
+          // Subsequent cards enter strictly from the right side (+X) and exit to the left (-X)
+          gsap.fromTo(
+            el,
+            { opacity: 0, x: enterFromX, y: 0 },
+            {
+              opacity: 1,
+              x: 0,
+              y: 0,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: trigger,
+                start: 'top 85%',
+                end: 'center center',
+                scrub: 0.8,
+              },
+            }
+          );
+
+          // Exit off to the left side (-X) when scrolling past
+          if (trigger !== '#section-configurator') {
+            gsap.to(el, {
+              opacity: 0,
+              x: exitToX,
+              y: 0,
+              ease: 'power1.in',
+              scrollTrigger: {
+                trigger: trigger,
+                start: 'center 30%',
+                end: 'bottom 5%',
+                scrub: 0.8,
+              },
+            });
+          }
+        }
+      });
+    }
   }
 }

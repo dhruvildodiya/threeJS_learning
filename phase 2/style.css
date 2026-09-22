@@ -46,6 +46,7 @@ html.lenis, html.lenis body {
   outline: none;
   display: block;
   z-index: 1;
+  touch-action: pan-y;
 }
 
 /* Luxury Interactive Preloader */
@@ -1413,6 +1414,12 @@ body.luxury-showroom {
   align-items: center;
   padding: 80px 48px;
   pointer-events: none;
+  overflow: hidden; /* Prevent horizontal scrollbars during sideways card entry/exit */
+}
+
+.story-card,
+.hero-content {
+  will-change: transform, opacity;
 }
 
 /* Section 1: Hero */
@@ -1691,4 +1698,145 @@ body.luxury-showroom {
   letter-spacing: 0.14em;
   color: #ffffff;
   font-family: var(--font-mono);
+}
+
+/* ============================================================================
+   MOBILE RESPONSIVE SYSTEM (max-width: 768px only)
+   Desktop (>768px) keeps original layout, left/right side alignment, and positioning.
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 0 16px;
+    height: 52px;
+  }
+
+  .brand-name {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+  }
+
+  /* Story section: pins content at the very bottom */
+  .story-section {
+    padding: 0 16px 20px 16px;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Stick to bottom */
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-hero {
+    justify-content: center;
+    padding-top: 60px;
+  }
+
+  .hero-content {
+    margin-top: auto;
+    margin-bottom: 24px;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .hero-heading {
+    font-size: clamp(28px, 8vw, 40px);
+    margin-bottom: 12px;
+  }
+
+  .hero-subtext {
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .hero-hints {
+    gap: 16px;
+  }
+
+  .scroll-text,
+  .interact-text {
+    font-size: 8.5px;
+    letter-spacing: 0.14em;
+  }
+
+  /* Bottom 36% Docked Card - purely horizontal travel, NO up/down movement */
+  .story-card {
+    position: absolute;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    margin: 0 auto !important;
+    width: auto !important;
+    max-width: calc(100% - 32px) !important;
+    max-height: 36svh;
+    height: auto;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(10, 14, 22, 0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+    overflow-y: auto;
+    z-index: 20;
+    pointer-events: auto;
+    /* Never move in Y */
+    top: auto !important;
+  }
+
+  .card-badge {
+    margin-bottom: 4px;
+    font-size: 8px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    line-height: 1.45;
+    margin-bottom: 10px;
+    color: #cbd5e1;
+  }
+
+  .card-metrics {
+    gap: 14px;
+    padding-top: 8px;
+  }
+
+  .metric-num {
+    font-size: 13px;
+  }
+
+  .metric-lbl {
+    font-size: 7px;
+  }
+
+  .explode-indicator {
+    padding-top: 8px;
+    font-size: 8px;
+  }
+
+  .section-configurator {
+    padding-bottom: 20px;
+  }
+
+  /* Preloader Mobile */
+  .preloader-content {
+    width: min(88vw, 300px);
+    gap: 12px;
+  }
+
+  .preloader-title {
+    font-size: 20px;
+  }
+
+  .preloader-status-sub {
+    font-size: 8px;
+  }
 }

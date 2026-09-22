@@ -4,8 +4,13 @@ import { gsap } from 'gsap';
 
 export class CameraManager {
   constructor(renderer, canvas) {
-    this.camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.05, 50);
-    this.camera.position.set(0, 0.35, 1.6);
+    const isMobile = window.innerWidth < 768;
+    const aspect = window.innerWidth / window.innerHeight;
+    const initialFov = aspect < 0.75 ? 46 : (aspect < 1.05 ? 42 : 38);
+    const initialZ = aspect < 0.75 ? 2.3 : (aspect < 1.05 ? 1.85 : 1.6);
+
+    this.camera = new THREE.PerspectiveCamera(initialFov, aspect, 0.05, 50);
+    this.camera.position.set(0, 0.35, initialZ);
 
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
@@ -14,12 +19,21 @@ export class CameraManager {
     this.controls.minDistance = 0.5;
     this.controls.maxDistance = 5.0;
     this.controls.enabled = false; // Disabled during storytelling scroll, enabled in Configurator section
+
+    // Configure touch controls so 1-finger scrolls Lenis smoothly
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouch) {
+      this.controls.touches = {
+        ONE: THREE.TOUCH.NONE,
+        TWO: THREE.TOUCH.DOLLY_ROTATE,
+      };
+    }
     this.controls.update();
 
     this.cameraPresets = {
-      hero: { pos: { x: 0, y: 0.35, z: 1.6 }, target: { x: 0, y: 0, z: 0 } },
-      dial: { pos: { x: 0, y: 0.5, z: 0.65 }, target: { x: 0, y: 0, z: 0 } },
-      clasp: { pos: { x: -0.6, y: -0.2, z: -1.0 }, target: { x: 0, y: 0, z: -0.1 } },
+      hero: { pos: { x: 0, y: 0.35, z: initialZ }, target: { x: 0, y: 0, z: 0 } },
+      dial: { pos: { x: 0, y: 0.5, z: isMobile ? 0.8 : 0.65 }, target: { x: 0, y: 0, z: 0 } },
+      clasp: { pos: { x: -0.6, y: -0.2, z: isMobile ? -1.3 : -1.0 }, target: { x: 0, y: 0, z: -0.1 } },
     };
 
     window.addEventListener('resize', this.onResize.bind(this));
@@ -71,7 +85,9 @@ export class CameraManager {
   }
 
   onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const aspect = window.innerWidth / window.innerHeight;
+    this.camera.aspect = aspect;
+    this.camera.fov = aspect < 0.75 ? 46 : (aspect < 1.05 ? 42 : 38);
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
