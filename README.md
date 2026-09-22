@@ -28,8 +28,21 @@ A curated repository exploring **Three.js**, **WebGL**, physically based renderi
     - [Mini Project 1: Real-World Material Physics Showcase](#mini-project-1-real-world-material-physics-showcase-mini1js)
     - [Mini Project 2: Interactive 3D Orbit & Selection Scene](#mini-project-2-interactive-3d-orbit--selection-scene-mini2js)
     - [Mini Project 3: Optimized 60 FPS Night/Dusk Atmospheric Scene](#mini-project-3-optimized-60-fps-nightdusk-atmospheric-scene-mini3js)
-  - [Capstone Project: MERIDIAN Luxury Automatic Horology](#capstone-project-meridian-luxury-automatic-horology-finaljs)
-- [Phase 2: Advanced Topics Workspace](#phase-2-advanced-topics-workspace)
+  - [Capstone Project: MERIDIAN Luxury Automatic Horology](#capstone-project-watch-luxury-automatic-horology-finaljs)
+- [Phase 2: Production-Oriented 3D Engineering Curriculum (Modules 1–13)](#phase-2-production-oriented-3d-engineering-curriculum-modules-113)
+  - [1. GLTF / GLB 3D Model Loading](#1-gltf--glb-3d-model-loading)
+  - [2. OrbitControls & Camera Controls](#2-orbitcontrols--camera-controls)
+  - [3. Advanced Raycasting & Object Interaction](#3-advanced-raycasting--object-interaction)
+  - [4. 3D Object Transformation & Manipulation (`task1.js`)](#4-3d-object-transformation--manipulation-task1js)
+  - [5. Animation Systems & GSAP Timelines (`task1.js`)](#5-animation-systems--gsap-timelines-task1js)
+  - [6. AnimationMixer & Skeletal Animation (`task2.js`)](#6-animationmixer--skeletal-animation-task2js)
+  - [7. Environment & HDRI Lighting (`task3.js`)](#7-environment--hdri-lighting-task3js)
+  - [8. Post-Processing Effects & Composer (`task4.js`)](#8-post-processing-effects--composer-task4js)
+  - [9. Advanced Materials & Custom GLSL Shaders (`task5.js`)](#9-advanced-materials--custom-glsl-shaders-task5js)
+  - [10. 3D Performance Optimization](#10-3d-performance-optimization)
+  - [11. InstancedMesh & Large Object Rendering (`task6.js`)](#11-instancedmesh--large-object-rendering-task6js)
+  - [12. Scene Management & Reusable Components (`phase 1/src/`)](#12-scene-management--reusable-components-phase-1src)
+  - [13. Scroll-Based 3D Experiences](#13-scroll-based-3d-experiences)
 - [Asset Pipeline & Automation](#asset-pipeline--automation)
 - [Switching Active Scenes in Phase 1](#switching-active-scenes-in-phase-1)
 - [UI & Styling Aesthetics](#ui--styling-aesthetics)
@@ -73,12 +86,19 @@ ThreeJS/
 │   └── textures/                       # PBR texture maps (color, normal, roughness, metallic)
 │
 └── phase 2/                            # Phase 2: Advanced 3D WebGL Workspace
-    ├── index.html                      # Phase 2 entry HTML
-    ├── main.js                         # Phase 2 starter with scene, camera, lights & controls
-    ├── style.css                       # Phase 2 glassmorphism layout & theme
-    ├── package.json                    # Phase 2 dependencies (Three.js, Vite)
+    ├── index.html                      # Phase 2 entry HTML with interactive HUD
+    ├── style.css                       # Modern dark glassmorphism styling & dashboards
+    ├── package.json                    # Phase 2 dependencies (Three.js, Vite, GSAP)
     ├── vite.config.js                  # Phase 2 Vite dev server config (port 5174)
-    └── .gitignore                      # Local ignore rules
+    ├── HDRI/                           # High Dynamic Range equirectangular environments
+    ├── models/                         # GLTF / GLB assets & Mixamo animated rigs
+    │
+    ├── task1.js                        # Task 1: 3D Object manipulation, GSAP animations & shooting range
+    ├── task2.js                        # Task 2: Skeletal rigging & THREE.AnimationMixer studio
+    ├── task3.js                        # Task 3: PBR materials & HDRI showroom (PMREM)
+    ├── task4.js                        # Task 4: Post-processing pipeline (Bloom, Outline, Vignette)
+    ├── task5.js                        # Task 5: Custom GLSL ShaderMaterials (Waves, Dissolve, Shield, Gradient)
+    └── task6.js                        # Task 6: InstancedMesh (~2,300 pillars), Spring physics & OnBeforeCompile
 ```
 
 ---
@@ -238,17 +258,175 @@ An interactive, procedurally constructed luxury mechanical watch configurator an
 
 ---
 
-## Phase 2: Advanced Topics Workspace
+## Phase 2: Production-Oriented 3D Engineering Curriculum (Modules 1–13)
 
-The [`phase 2`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202) directory is a clean, modern development environment prepared for the next level of 3D web graphics:
-- Built with **Vite** and the latest **Three.js**.
-- Configured with a responsive full-screen canvas, dark mode styling, and glassmorphism HUD overlay.
-- Pre-configured `OrbitControls`, directional and point lighting, shadows, and animation loop template.
-- Ready for advanced topics such as custom GLSL shaders, post-processing pipelines, particle systems, GLTF model loading, and physics integration.
+The goal of Phase 2 is to move developers from basic scene creation into production-oriented, high-performance 3D engineering. Below is the comprehensive 13-topic curriculum and how each topic is implemented in this repository.
 
-To run Phase 2:
+---
+
+### 1. GLTF / GLB 3D Model Loading
+*Work with real-world 3D assets instead of creating everything from primitive Three.js geometries.*
+- **Key Concepts:**
+  - Differences between `.gltf` (JSON + external bin/textures) and `.glb` (binary self-contained container).
+  - Asynchronous loading with `GLTFLoader` and progress/error callbacks.
+  - Traversing scene graphs (`scene.traverse`) to access child meshes, compute bounding boxes, and configure shadows (`castShadow`, `receiveShadow`).
+  - Hierarchical transforms, normalization, and scaling imported models into standard Three.js metric units.
+- **Implementations in Repository:**
+  - [`phase 2/task1.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task1.js): Complex modular firearm model loaded and traversed into separate functional components (scope, barrel, bolt, trigger, magazine).
+  - [`phase 2/task2.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task2.js): Rigged humanoid character model (`Standing Run Forward.gltf`) with scale normalization ($0.01\times$).
+
+---
+
+### 2. OrbitControls & Camera Controls
+*Provide users with intuitive, restricted, and physics-damped control over a 3D perspective camera.*
+- **Key Concepts:**
+  - Orbiting, panning, and zooming with inertial damping (`enableDamping: true`, `dampingFactor`).
+  - Constraining camera bounds with `minDistance`, `maxDistance`, `minPolarAngle`, and `maxPolarAngle` (preventing camera clipping through ground planes).
+  - Setting and animating `controls.target` to shift focal points between objects.
+  - Coordinating between `OrbitControls` and direct manipulation gizmos without mouse-event collisions.
+- **Implementations in Repository:**
+  - [`phase 2/task2.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task2.js), [`task3.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task3.js), [`task4.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task4.js): Damped orbit controls with auto-rotation and polar boundaries.
+  - [`phase 1/src/cameras/CameraManager.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%201/src/cameras/CameraManager.js): Decoupled camera manager keeping studio stage lighting fixed while zooming and tracking.
+
+---
+
+### 3. Advanced Raycasting & Object Interaction
+*Build rich 3D interaction pipelines beyond simple single-click detection.*
+- **Key Concepts:**
+  - Normalized Device Coordinates (NDC) conversion from pointer events.
+  - Raycaster intersection against complex hierarchical groups and recursive children.
+  - Multi-state interaction handling: `hover` (highlight/glow), `select` (dolly/focus), and `deselect`.
+  - Storing and retrieving custom application metadata (`mesh.userData`).
+- **Implementations in Repository:**
+  - [`phase 2/task1.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task1.js): 3D raycast ballistics with surface normal detection, decal projections, and interactive part selection.
+  - [`phase 1/mini2.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%201/mini2.js): Hover detection, selection rings, and smooth camera dolly lerping.
+
+---
+
+### 4. 3D Object Transformation & Manipulation (`task1.js`)
+*Enable direct manipulation of objects inside 3D space for configurators and scene editors.*
+- **Key Concepts:**
+  - Direct 3D gizmos with `TransformControls` (Translate, Rotate, Scale modes).
+  - Local coordinate systems vs. World coordinate systems.
+  - Grid and angular snapping increments for CAD-like precision.
+  - Setting position boundaries and transformation clamps.
+- **Implementations in Repository:**
+  - [`phase 2/task1.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task1.js): Full interactive 3D gizmo (`T` to toggle, `1/2/3` for modes, `G` for snapping, `W/A/S/D/Q/E` keyboard controls, and `R` to reset).
+
+---
+
+### 5. Animation Systems & GSAP Timelines (`task1.js`)
+*Move from simple rotation animations to structured, multi-stage coordinated animation sequences.*
+- **Key Concepts:**
+  - Timeline-based choreography using **GSAP (GreenSock)** integrated with Three.js objects.
+  - Multi-state animation machines (`IDLE`, `INSPECTING`, `RELOADING`, `EXPLODED`, `TURNTABLE`).
+  - Storing default local transforms in a `Map` to enable reversible transitions and scrubbing.
+  - Bidirectional timeline scrubbing via interactive HTML range sliders.
+- **Implementations in Repository:**
+  - [`phase 2/task1.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task1.js): Multi-part GSAP timeline orchestrating inspection dollies, realistic reload mechanical cycles, and exploded assembly.
+
+---
+
+### 6. AnimationMixer & Skeletal Animation (`task2.js`)
+*Work with skinned meshes and skeletal bone hierarchies included in GLTF/GLB models.*
+- **Key Concepts:**
+  - `THREE.AnimationMixer`, `AnimationClip`, and `AnimationAction`.
+  - Play, pause, stop, and cross-fading between distinct animation states.
+  - Playback rate manipulation (slow-motion to double speed) and loop modes (`LoopRepeat`, `LoopOnce`, `LoopPingPong`).
+  - Visualizing skeletal bone structures using `THREE.SkeletonHelper`.
+  - Manual timeline scrubbing synchronized with animation clip duration.
+- **Implementations in Repository:**
+  - [`phase 2/task2.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task2.js): Full `AnimationMixer` studio controlling Mixamo skeletal runs, timeline scrubbing, speed control, and bone visualization.
+
+---
+
+### 7. Environment & HDRI Lighting (`task3.js`)
+*Create photorealistic lighting using High Dynamic Range equirectangular environment maps.*
+- **Key Concepts:**
+  - Image-Based Lighting (IBL) with 32-bit `.hdr` files via `RGBELoader`.
+  - Pre-filtered Environment Maps via `THREE.PMREMGenerator` for radiance and specular highlights.
+  - Direct scene environment binding (`scene.environment`) and background blurriness (`scene.backgroundBlurriness`).
+  - PBR response comparison across metals, crown glass, glossy plastic, and rough surfaces.
+- **Implementations in Repository:**
+  - [`phase 2/task3.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task3.js): Interactive HDRI showroom with live shader controls for roughness, metalness, transmission, IOR, and background blur.
+
+---
+
+### 8. Post-Processing Effects & Composer (`task4.js`)
+*Enhance rendered scenes with screen-space visual effects using `EffectComposer`.*
+- **Key Concepts:**
+  - Multi-pass post-processing pipeline replacing standard canvas rendering.
+  - `RenderPass` (base scene), `UnrealBloomPass` (HDR bloom), `OutlinePass` (silhouette selection), `ShaderPass` with `VignetteShader`, and `OutputPass` (sRGB + tone mapping).
+  - Balancing visual impact against performance overhead and GPU fill-rate.
+- **Implementations in Repository:**
+  - [`phase 2/task4.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task4.js): Sci-fi cyber reactor showcase featuring dynamic bloom, hover outlines, cinematic vignette, and live FPS telemetry.
+
+---
+
+### 9. Advanced Materials & Custom GLSL Shaders (`task5.js`)
+*Write custom GPU vertex and fragment shaders using GLSL to create effects beyond built-in materials.*
+- **Key Concepts:**
+  - Structure of a GLSL shader program: Vertex shader (positions) and Fragment shader (pixels).
+  - Working with `Uniforms` (dynamic CPU-to-GPU data), `Attributes` (per-vertex data), and `Varyings` (interpolated vertex-to-fragment data).
+  - Procedural trigonometric distortion, pixel discard (`discard`), and optical Fresnel rim glows.
+- **Implementations in Repository:**
+  - [`phase 2/task5.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task5.js): 4 custom GLSL shaders (🌊 Water Waves, 🔥 Perlin Noise Dissolve, 🛡️ Holographic Forcefield, 🌈 Liquid Plasma Gradient) + procedural canvas noise generator.
+
+---
+
+### 10. 3D Performance Optimization
+*Maintain solid 60 FPS performance as scenes increase in geometric and shader complexity.*
+- **Key Concepts:**
+  - Minimizing Draw Calls via geometry merging and instancing.
+  - Texture optimization: Power-of-two resolutions, mipmapping, and Sharp automated compression.
+  - Memory management: Explicitly disposing geometries, materials, textures, and composer passes (`dispose()`).
+  - Clamping Device Pixel Ratio (`Math.min(window.devicePixelRatio, 2)`) to avoid mobile fill-rate bottlenecks.
+  - Delta time clamping in render loops to prevent integration blowups.
+- **Implementations in Repository:**
+  - Used across all Phase 1 and Phase 2 scenes (`dispose` event handlers, DPR clamping, `DynamicDrawUsage` buffers).
+
+---
+
+### 11. InstancedMesh & Large Object Rendering (`task6.js`)
+*Render thousands of identical or similar objects efficiently in a single draw call.*
+- **Key Concepts:**
+  - `THREE.InstancedMesh` rendering thousands of objects in 1 draw call instead of thousands.
+  - Structure-of-Arrays (typed `Float32Array`) data layout for CPU cache optimization.
+  - Patching standard PBR shaders via `material.onBeforeCompile` to inject custom per-instance vertex attributes (`aTint`, `aGlow`).
+  - Analytic $O(1)$ picking: Computing grid cell indices mathematically without raycasting thousands of meshes.
+  - Physics integration: Semi-implicit Euler damped harmonic oscillator spring model.
+- **Implementations in Repository:**
+  - [`phase 2/task6.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%202/task6.js): 2,304 animated pillars responding to cursor proximity and click shockwaves with bloom and screen-space projected HTML tooltips.
+
+---
+
+### 12. Scene Management & Reusable Components (`phase 1/src/`)
+*Architect large-scale Three.js applications using modular ES6 classes, object factories, and configuration objects.*
+- **Key Concepts:**
+  - Separation of Concerns: Decoupling rendering, scene graph, materials, cameras, and DOM events.
+  - Reusable 3D Components: Encapsulating complex hierarchies (e.g. `WatchCase`, `WatchDial`, `WatchStrap`) into standalone classes.
+  - Centralized Configuration: Moving dimensions, color palettes, and lighting presets into configuration objects.
+- **Implementations in Repository:**
+  - [`phase 1/src/`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%201/src/): Complete refactor of the 860-line watch configurator into `config/`, `cameras/`, `lights/`, `materials/`, `scenes/`, `models/`, `interactions/`, `animations/`, and `main.js`.
+
+---
+
+### 13. Scroll-Based 3D Experiences
+*Connect 3D scenes with traditional web interactions and landing page storytelling.*
+- **Key Concepts:**
+  - Fixed background canvas (`position: fixed`) paired with relative scroll sections (`100vh`).
+  - Normalizing scroll progress ($0.0 \to 1.0$) across the document height or per section.
+  - Inertial damping and linear interpolation (`lerp`) to ensure fluid, stutter-free camera dollies.
+  - Section-based choreography and keyframe triggers using GSAP ScrollTrigger.
+- **Implementations in Repository:**
+  - Conceptual architecture, CSS layout guidelines, and code examples documented in master reference.
+
+---
+
+### Running Phase 2
 ```bash
 cd "phase 2"
+npm install
 npm run dev
 ```
 

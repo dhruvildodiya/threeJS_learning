@@ -3,137 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Phase 2 — 3D Object Manipulation</title>
-  <meta name="description" content="3D Object Transformation & Direct Manipulation in Three.js" />
+  <title>KRONOS — Precision Digital Horology Showcase</title>
+  <meta name="description" content="Next-Generation 3D Digital Watch Configurator with direct object manipulation, raycasting, and real-time PBR material customization." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
+<body class="luxury-showroom">
+  <!-- 3D Canvas -->
+  <!-- Fixed 3D Canvas Background -->
   <canvas id="webgl-canvas"></canvas>
 
+  <!-- Top Luxury Navigation Header -->
+  <header class="site-header">
+    <div class="header-brand">
+      <span class="brand-logo">◆</span>
+      <span class="brand-name">KRONOS</span>
+      <span class="brand-sub">PRECISION DIGITAL HOROLOGY</span>
+    </div>
+    <div class="header-nav-links">
+      <a href="#section-hero" class="nav-link">Overview</a>
+      <a href="#section-showcase" class="nav-link">Architecture</a>
+      <a href="#section-explode" class="nav-link">Exploded View</a>
+      <a href="#section-configurator" class="nav-link highlight-link">Configurator</a>
+    </div>
+  
+  </header>
 
-  <!-- Task 1 HTML -->
-  <!-- <div class="hud-overlay">
-    <div class="hud-title">🎮 3D Gun Manipulation</div>
-    <div class="hud-list">
-      <div class="hud-item"><span>Toggle 3D Gizmo</span><span class="hud-key">T</span></div>
-      <div class="hud-item"><span>Orbit Controls (Rotate/Pan/Zoom)</span><span class="hud-key">O</span></div>
-      <div class="hud-item"><span>Gizmo Mode (Move / Rot / Scale)</span><span class="hud-key">1 / 2 / 3</span></div>
-      <div class="hud-item"><span>Move X / Z (Depth & Pan)</span><span class="hud-key">W A S D</span></div>
-      <div class="hud-item"><span>Elevate Y (Up / Down)</span><span class="hud-key">Q / E</span></div>
-      <div class="hud-item"><span>Rotate Model</span><span class="hud-key">Mouse Drag</span></div>
-      <div class="hud-item"><span>Scale Model</span><span class="hud-key">Wheel / + -</span></div>
-      <div class="hud-item"><span>Toggle Snapping Grid</span><span class="hud-key">G</span></div>
-      <div class="hud-item"><span>Reset Transform</span><span class="hud-key">R / DblClick BG</span></div>
-      <div class="hud-item"><span>Shoot & Recoil</span><span class="hud-key">DblClick Gun</span></div>
+  <!-- Multi-Section Scrolling Story Container -->
+  <main id="scroll-container" class="scroll-story-container">
+    <!-- Section 1: Hero -->
+    <section id="section-hero" class="story-section section-hero">
+      <div class="hero-content">
+        <span class="section-tagline">SERIES 2000 CHRONOGRAPH</span>
+        <h1 class="hero-heading">THE ARCHITECTURE<br />OF TIME.</h1>
+        <p class="hero-subtext">
+          Where Swiss horological geometry meets aerospace 316L stainless steel. Scroll to disassemble and discover the precision within.
+        </p>
+        <div class="hero-hints">
+          <div class="scroll-hint">
+            <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
+            <span class="scroll-text">SCROLL TO DISCOVER</span>
+          </div>
+          <div class="interact-hint">
+            <span class="interact-icon"><span class="interact-pulse"></span></span>
+            <span class="interact-text">CLICK WATCH TO INTERACT</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Showcase & Craftsmanship -->
+    <section id="section-showcase" class="story-section section-showcase">
+      <div class="story-card left-card">
+        <span class="card-badge">CRAFTSMANSHIP & DIAL</span>
+        <h2 class="card-title">PRECISION LCD DISPLAY</h2>
+        <p class="card-desc">
+          High-contrast electro-luminescent liquid crystal interface protected by micro-domed sapphire glass, calibrated for optimum daylight legibility.
+        </p>
+        <div class="card-metrics">
+          <div class="metric">
+            <span class="metric-num">100M</span>
+            <span class="metric-lbl">WATERPROOF DEPTH</span>
+          </div>
+          <div class="metric">
+            <span class="metric-num">0.05mm</span>
+            <span class="metric-lbl">TOLERANCE SPEC</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Exploded Assembly View -->
+    <section id="section-explode" class="story-section section-explode">
+      <div class="story-card right-card">
+        <span class="card-badge">MECHANICAL DISASSEMBLY</span>
+        <h2 class="card-title">MODULAR HOROLOGY</h2>
+        <p class="card-desc">
+          Every component is engineered for isolated serviceability. Notice how the sapphire crystal, case module, articulated upper link, and folding clasp seamlessly disengage.
+        </p>
+        <div class="explode-indicator">
+          <span class="pulse-dot"></span>
+          <span>SCROLL DOWN TO REASSEMBLE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Configurator Showroom -->
+    <section id="section-configurator" class="story-section section-configurator">
+      <!-- Minimalist Call-To-Action Banner -->
+      <div class="story-card configurator-card">
+        <span class="card-badge">DIRECT INTERACTION</span>
+        <h2 class="card-title">PRECISION FINISH STUDIO</h2>
+        <p class="card-desc">
+          Orbit freely around the watch in 360°. Click anywhere on the watch to cycle through aerospace finishes: Silver 316L Steel, Onyx Stealth, and Rose Gold.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 3D Screen-Space Projected Hover Tag -->
+  <div id="screen-tag" class="screen-tag">
+    <div class="tag-dot"></div>
+    <div class="tag-box">
+      <span class="tag-title" id="tag-title">Case Body</span>
+      <span class="tag-action">CLICK TO CYCLE COLOR</span>
     </div>
   </div>
 
-  <div class="animation-toolbar">
-    <div class="toolbar-header">
-      <span class="toolbar-badge" id="anim-state-badge">STATE: IDLE</span>
-      <span class="toolbar-title">⚡ Animation Suite</span>
-    </div>
-    <div class="toolbar-buttons">
-      <button class="anim-btn" id="btn-inspect-scope">🔍 Inspect Scope</button>
-      <button class="anim-btn" id="btn-inspect-barrel">🎯 Inspect Barrel</button>
-      <button class="anim-btn" id="btn-inspect-trigger">🔘 Inspect Trigger</button>
-      <button class="anim-btn" id="btn-reload-sequence">🔄 Reload Sequence</button>
-      <button class="anim-btn" id="btn-exploded-view">💥 Exploded View</button>
-      <button class="anim-btn" id="btn-turntable">🎪 Turntable Orbit</button>
-      <button class="anim-btn" id="btn-reset-view">🏠 Reset View</button>
-    </div>
-    <div class="timeline-scrubber-container">
-      <div class="scrubber-label">
-        <span>Timeline Scrubber (GSAP)</span>
-        <span id="scrub-time-val">0.00s</span>
-      </div>
-      <input type="range" id="timeline-slider" min="0" max="1" step="0.001" value="0" />
-    </div>
-  </div>
-
-  <div id="annotation-pin" class="annotation-pin hidden">
-    <div class="pin-dot"></div>
-    <div class="pin-card">
-      <div class="pin-title" id="pin-title">Component</div>
-      <div class="pin-desc" id="pin-desc">Details</div>
-    </div>
-  </div>
-
-  <div class="scroll-storyboard-container" id="scroll-container">
-    <div class="scroll-section" data-step="0">
-      <div class="scroll-card">
-        <h3>📜 Scroll Animation 1/3</h3>
-        <p>Hero Overview & Orbit Introduction</p>
-      </div>
-    </div>
-    <div class="scroll-section" data-step="1">
-      <div class="scroll-card">
-        <h3>💥 Scroll Animation 2/3</h3>
-        <p>Exploded Mechanics: Scope, Bolt & Wrap</p>
-      </div>
-    </div>
-    <div class="scroll-section" data-step="2">
-      <div class="scroll-card">
-        <h3>🎯 Scroll Animation 3/3</h3>
-        <p>Aim Down Sight Alignment with Target</p>
-      </div>
-    </div>
-  </div> -->
- 
-  <!-- ===================================================================== -->
- 
- 
- 
- 
- 
- 
-  <!-- TASK 2: SKELETAL ANIMATION & ANIMATIONMIXER STUDIO                    -->
-  <!-- ===================================================================== -->
-  <div class="hud-overlay">
-    <div class="hud-title">🏃 Skeletal Animation Studio</div>
-    <div class="hud-list">
-      <div class="hud-item"><span>Orbit Controls</span><span class="hud-key">Mouse Drag</span></div>
-      <div class="hud-item"><span>Zoom</span><span class="hud-key">Wheel</span></div>
-      <div class="hud-item"><span>Pan Scene</span><span class="hud-key">Right Click</span></div>
-      <div class="hud-item"><span>Toggle Bones</span><span class="hud-key">B</span></div>
-      <div class="hud-item"><span>Play / Pause</span><span class="hud-key">Space</span></div>
-    </div>
-  </div>
-
-  <div class="mixer-dashboard">
-    <div class="mixer-header">
-      <div class="mixer-title">
-        <span>⚡ THREE.AnimationMixer</span>
-        <span class="mixer-badge" id="badge-clip-name">Clip: mixamo_com</span>
-      </div>
-      <span class="mixer-badge" id="badge-playback-state">STATE: PLAYING</span>
-    </div>
-
-    <div class="mixer-controls-row">
-      <button class="mixer-btn active" id="btn-play">▶ Play</button>
-      <button class="mixer-btn" id="btn-pause">⏸ Pause</button>
-      <button class="mixer-btn" id="btn-stop">⏹ Stop (Reset)</button>
-      <button class="mixer-btn" id="btn-toggle-skeleton">🦴 Skeleton Rig</button>
-      <button class="mixer-btn" id="btn-loop-mode">🔁 Loop: Repeat</button>
-      <button class="mixer-btn" id="btn-reset-cam">🎥 Reset Cam</button>
-    </div>
-
-    <div class="mixer-slider-group">
-      <span class="mixer-slider-label">Timeline</span>
-      <input type="range" class="mixer-slider" id="timeline-scrubber" min="0" max="1" step="0.001" value="0" />
-      <span class="mixer-val" id="time-display">0.00s / 0.00s</span>
-    </div>
-
-    <div class="mixer-slider-group">
-      <span class="mixer-slider-label">Speed</span>
-      <input type="range" class="mixer-slider" id="speed-slider" min="0.1" max="2.5" step="0.05" value="1.0" />
-      <span class="mixer-val" id="speed-display">1.00x</span>
-    </div>
-  </div>
-
-  <script type="module" src="./task2.js"></script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
