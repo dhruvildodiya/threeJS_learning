@@ -1,8 +1,8 @@
 :root {
   --bg: #0f172a;
-  --font-display: 'Syne', sans-serif;
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Space Grotesk', -apple-system, monospace;
+  --font-display: 'Poppins', sans-serif;
+  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Poppins', -apple-system, monospace;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
 }
