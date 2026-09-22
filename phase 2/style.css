@@ -19,10 +19,22 @@ html, body {
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  scroll-behavior: smooth;
   background-color: var(--bg);
   font-family: var(--font-sans);
   color: var(--text-main);
+}
+
+/* Lenis smooth scroll overrides */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 #webgl-canvas {

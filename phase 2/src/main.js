@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import { APP_CONFIG } from './config/config.js';
 import { CameraManager } from './cameras/CameraManager.js';
 import { StudioLighting } from './lights/StudioLighting.js';
@@ -12,12 +15,32 @@ import { UIManager } from './interactions/UIManager.js';
 import { AnimationManager } from './animations/AnimationManager.js';
 import { ScrollStoryManager } from './animations/ScrollStoryManager.js';
 
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
+
 class App {
   constructor() {
     this.canvas = document.querySelector('#webgl-canvas');
 
     // 0. Smart Loading Manager & Progressive Preloader UI
     this.loadingManager = this._initLoadingManager();
+
+    // 0.5 Lenis Smooth Scroll
+    this.lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 2,
+    });
+
+    this.lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      this.lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
 
     // 1. Scene & Renderer Setup
     this.scene = new THREE.Scene();
