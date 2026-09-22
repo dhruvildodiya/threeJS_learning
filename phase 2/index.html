@@ -11,6 +11,24 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body class="luxury-showroom">
+  <!-- Luxury Interactive Preloader -->
+  <div id="preloader" class="preloader-overlay">
+    <div class="preloader-content">
+      <div class="preloader-brand">
+        <span class="preloader-logo">◆</span>
+        <span class="preloader-title">KRONOS</span>
+      </div>
+      <div class="preloader-status-sub">CALIBRATING 3D HOROLOGY ENGINE</div>
+      <div class="preloader-progress-wrap">
+        <div id="preloader-bar" class="preloader-bar"></div>
+      </div>
+      <div class="preloader-numbers">
+        <span id="preloader-percent" class="preloader-percent">0%</span>
+        <span id="preloader-file" class="preloader-file">INITIALIZING</span>
+      </div>
+    </div>
+  </div>
+
   <!-- 3D Canvas -->
   <!-- Fixed 3D Canvas Background -->
   <canvas id="webgl-canvas"></canvas>

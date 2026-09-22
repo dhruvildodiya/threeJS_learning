@@ -7,6 +7,7 @@ export class ScrollStoryManager {
   constructor({
     watchModel,
     cameraManager,
+    environment,
     onEnterConfigurator,
     onLeaveConfigurator,
     onSetInteractive,
@@ -14,6 +15,7 @@ export class ScrollStoryManager {
   }) {
     this.watchModel = watchModel;
     this.cameraManager = cameraManager;
+    this.environment = environment;
     this.onEnterConfigurator = onEnterConfigurator;
     this.onLeaveConfigurator = onLeaveConfigurator;
     this.onSetInteractive = onSetInteractive;
@@ -33,9 +35,16 @@ export class ScrollStoryManager {
         end: 'bottom bottom',
         scrub: 1.4,
         onUpdate: (self) => {
-          const isComplete = self.progress >= 0.999;
+          const isAtStart = self.progress <= 0.005;
+          const isAtEnd = self.progress >= 0.995;
+          const isInteractive = isAtStart || isAtEnd;
+
+          if (this.onSetInteractive) {
+            this.onSetInteractive(isInteractive);
+          }
+
           if (this.onScrollComplete) {
-            this.onScrollComplete(isComplete);
+            this.onScrollComplete(isAtEnd);
           }
         },
       },
@@ -78,6 +87,15 @@ export class ScrollStoryManager {
       'stage-showcase'
     );
 
+    // Depth of field (macro focus blur in showcase)
+    if (this.environment && this.environment.scene) {
+      tl.to(
+        this.environment.scene,
+        { backgroundBlurriness: 0.28, ease: 'power1.inOut' },
+        'stage-showcase'
+      );
+    }
+
     // ------------------------------------------------------------------------
     // Step 2: Section 2 -> Section 3 (Exploded Assembly View)
     // Watch moves directly to center stage, faces forward, and parts expand!
@@ -114,6 +132,14 @@ export class ScrollStoryManager {
       },
       'stage-explode'
     );
+
+    if (this.environment && this.environment.scene) {
+      tl.to(
+        this.environment.scene,
+        { backgroundBlurriness: 0.12, ease: 'power2.inOut' },
+        'stage-explode'
+      );
+    }
 
     // Explode components along scrub timeline (tight, calibrated explosion)
     // 1. Sapphire crystal rises with subtle, refined spacing
@@ -232,6 +258,14 @@ export class ScrollStoryManager {
       'stage-configurator'
     );
 
+    if (this.environment && this.environment.scene) {
+      tl.to(
+        this.environment.scene,
+        { backgroundBlurriness: 0.06, ease: 'power2.inOut' },
+        'stage-configurator'
+      );
+    }
+
     // Re-assembly tweens
     this.watchModel.interactiveMeshes.forEach((mesh) => {
       const def = this.watchModel.defaultTransforms.get(mesh);
@@ -249,34 +283,16 @@ export class ScrollStoryManager {
       }
     });
 
-    // Initial Section (Hero): Enable hover and click interactions
-    ScrollTrigger.create({
-      trigger: '#section-hero',
-      start: 'top top',
-      end: 'bottom 40%',
-      onEnter: () => {
-        if (this.onSetInteractive) this.onSetInteractive(true);
-      },
-      onEnterBack: () => {
-        if (this.onSetInteractive) this.onSetInteractive(true);
-      },
-      onLeave: () => {
-        if (this.onSetInteractive) this.onSetInteractive(false);
-      },
-    });
-
-    // Final Section (Configurator): Enable hover, click, and OrbitControls
+    // Final Section (Configurator): Enable OrbitControls when reaching the configurator view
     ScrollTrigger.create({
       trigger: '#section-configurator',
-      start: 'top center',
+      start: 'bottom 95%',
       end: 'bottom bottom',
       onEnter: () => {
         if (this.onEnterConfigurator) this.onEnterConfigurator();
-        if (this.onSetInteractive) this.onSetInteractive(true);
       },
       onLeaveBack: () => {
         if (this.onLeaveConfigurator) this.onLeaveConfigurator();
-        if (this.onSetInteractive) this.onSetInteractive(false);
       },
     });
   }

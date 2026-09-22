@@ -2,19 +2,25 @@ import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 export class Environment {
-  constructor(scene, renderer, hdriPath) {
+  constructor(scene, renderer, hdriPath, loadingManager = null) {
     this.scene = scene;
     this.renderer = renderer;
     this.hdriPath = hdriPath;
+    this.loadingManager = loadingManager;
 
     this.loadHDRI();
+  }
+
+  setBlurriness(blur) {
+    this.scene.backgroundBlurriness = blur;
   }
 
   loadHDRI() {
     const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
     pmremGenerator.compileEquirectangularShader();
 
-    new RGBELoader().load(
+    const rgbeLoader = this.loadingManager ? new RGBELoader(this.loadingManager) : new RGBELoader();
+    rgbeLoader.load(
       this.hdriPath,
       (hdrTexture) => {
         const envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture;

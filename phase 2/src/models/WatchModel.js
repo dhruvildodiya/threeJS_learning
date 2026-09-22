@@ -4,10 +4,11 @@ import { gsap } from 'gsap';
 import { PART_METADATA, FINISH_PALETTES } from '../config/config.js';
 
 export class WatchModel {
-  constructor(scene, modelPath, onLoadCallback) {
+  constructor(scene, modelPath, onLoadCallback, loadingManager = null) {
     this.scene = scene;
     this.modelPath = modelPath;
     this.onLoadCallback = onLoadCallback;
+    this.loadingManager = loadingManager;
 
     // Spin Pivot container for decoupling global Y auto-rotation from GSAP scroll scrub
     this.spinPivot = new THREE.Group();
@@ -34,7 +35,7 @@ export class WatchModel {
   }
 
   load() {
-    const loader = new GLTFLoader();
+    const loader = this.loadingManager ? new GLTFLoader(this.loadingManager) : new GLTFLoader();
     loader.load(
       this.modelPath,
       (gltf) => {
@@ -185,6 +186,12 @@ export class WatchModel {
           }
         });
 
+        // Contact Shadow underneath the watch model
+        this.contactShadow = this._createContactShadow();
+        if (this.contactShadow) {
+          this.spinPivot.add(this.contactShadow);
+        }
+
         this.spinPivot.add(this.root);
 
         // Initial Hero state: watch angled in foreground ready for scroll entry
@@ -203,7 +210,8 @@ export class WatchModel {
     if (key) this.currentFinishKey = key;
 
     this.interactiveMeshes.forEach((mesh) => {
-      if (mesh === this.parts.glass) return;
+      // Preserve crystal glass and inner dial display face
+      if (mesh === this.parts.glass || mesh === this.parts.dial) return;
 
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       mats.forEach((mat) => {
@@ -374,5 +382,36 @@ export class WatchModel {
         this.spinPivot.rotation.y = this.spinAngle;
       }
     }
+  }
+
+  _createContactShadow() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    const grad = ctx.createRadialGradient(128, 128, 10, 128, 128, 118);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+    grad.addColorStop(0.35, 'rgba(0, 0, 0, 0.4)');
+    grad.addColorStop(0.7, 'rgba(0, 0, 0, 0.12)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 256);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const geo = new THREE.PlaneGeometry(0.75, 0.75);
+    const mat = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.85,
+    });
+
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.y = -0.145; // Just above pedestal top
+    mesh.renderOrder = 0;
+    return mesh;
   }
 }
