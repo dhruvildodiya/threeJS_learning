@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 2: Audio Analysis & FFT</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="player-card">
+    <h2>📊 Day 2 — Audio Analysis</h2>
+    <p class="subtitle">Track: <code>The Rare Occasions - Notion.mp3</code></p>
+
+    <!-- Node routing diagram for learning -->
+    <div class="routing-box">
+      <span class="node">SourceNode</span>
+      <span class="arrow">──►</span>
+      <span class="node highlight">AnalyserNode (FFT)</span>
+      <span class="arrow">──►</span>
+      <span class="node">GainNode</span>
+      <span class="arrow">──►</span>
+      <span class="node">Speakers</span>
+    </div>
+
+    <!-- Playback Controls -->
+    <div class="controls">
+      <button id="playBtn">▶ Play</button>
+    </div>
+
+    <!-- Volume Control -->
+    <div class="volume-container">
+      <label for="volumeSlider">Volume: <span id="volumeValue">80%</span></label>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8" />
+    </div>
+
+    <!-- TOPIC 4: Time-Domain Oscilloscope Canvas -->
+    <div class="visualizer-section">
+      <div class="section-title">🌊 Time-Domain Waveform (Oscilloscope)</div>
+      <canvas id="waveformCanvas" width="400" height="80"></canvas>
+    </div>
+
+    <!-- TOPIC 5: Frequency Ranges (Bass, Mid, High, Volume) -->
+    <div class="visualizer-section">
+      <div class="section-title">🎛️ Frequency Ranges (FFT Bins)</div>
+      
+      <!-- Bass Bar -->
+      <div class="meter-row">
+        <span class="meter-label">🔴 Bass (20-250Hz)</span>
+        <div class="meter-track">
+          <div class="meter-fill bass-fill" id="bassBar"></div>
+        </div>
+        <span class="meter-val" id="bassVal">0</span>
+      </div>
+
+      <!-- Mid Bar -->
+      <div class="meter-row">
+        <span class="meter-label">🟢 Mid (250-4000Hz)</span>
+        <div class="meter-track">
+          <div class="meter-fill mid-fill" id="midBar"></div>
+        </div>
+        <span class="meter-val" id="midVal">0</span>
+      </div>
+
+      <!-- High Bar -->
+      <div class="meter-row">
+        <span class="meter-label">🔵 High (4k-16kHz)</span>
+        <div class="meter-track">
+          <div class="meter-fill high-fill" id="highBar"></div>
+        </div>
+        <span class="meter-val" id="highVal">0</span>
+      </div>
+
+      <!-- Overall Volume Bar -->
+      <div class="meter-row">
+        <span class="meter-label">⚪ Overall Volume</span>
+        <div class="meter-track">
+          <div class="meter-fill vol-fill" id="volBar"></div>
+        </div>
+        <span class="meter-val" id="volVal">0</span>
+      </div>
+    </div>
+
+    <!-- Status display -->
+    <div class="status-box">
+      <p>AudioContext State: <strong id="contextState">Not Created</strong></p>
+      <p>Status: <strong id="playerStatus">Click "Play" to start analyzing</strong></p>
+    </div>
+  </div>
+
+  <!-- Run Day 2 Script -->
+  <script type="module" src="./day2.js"></script>
+</body>
+</html>
