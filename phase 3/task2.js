@@ -323,6 +323,19 @@ const contactShadows = [
   new THREE.Vector3(3.6, -1.8, 0.6)    // right shoreline rocks
 ];
 
+// Physical Obstacle Colliders for Water-Rock & Water-Tree Collision
+// (worldX, worldZ, radius, interactionStrength) — 5 rocks + 3 island trees
+const obstacles = [
+  new THREE.Vector4(5.6, -5.8, 1.45, 1.0),   // Rock 1: Distant sea stack (deep ocean surge)
+  new THREE.Vector4(3.6, -1.8, 0.75, 1.0),   // Rock 2: Right shoreline cluster (surf zone)
+  new THREE.Vector4(-3.2, 0.2, 0.65, 0.85),  // Rock 3: Left shoreline rocks (tide wash)
+  new THREE.Vector4(-5.0, -3.8, 1.30, 0.95), // Rock 4: Distant headland ridge
+  new THREE.Vector4(-0.6, 1.6, 0.38, 0.65),  // Rock 5: Foreground pebbles
+  new THREE.Vector4(-3.8, 0.1, 0.42, 0.75),  // Tree 1: Hero island tree trunk
+  new THREE.Vector4(-5.1, -1.6, 0.38, 0.70), // Tree 2: Background tree trunk
+  new THREE.Vector4(-2.7, 1.1, 0.45, 0.75)   // Tree 3: Foreground tree trunk
+];
+
 const uniforms = {
   uTime: { value: 0 },
   uMouse: { value: new THREE.Vector2(0.5, 0.5) },
@@ -338,7 +351,8 @@ const uniforms = {
   uHorizonColor: { value: new THREE.Color('#8ea8be') },
   uLightDir: { value: sunLightDir },
   uContactShadows: { value: contactShadows },
-  uContactStrength: { value: 0.32 }                         // 0 disables contact shadows
+  uContactStrength: { value: 0.32 },                        // 0 disables contact shadows
+  uObstacles: { value: obstacles }
 };
 
 // 4. Custom Shader Material
@@ -352,6 +366,7 @@ const beachMaterial = new THREE.ShaderMaterial({
 
     uniform float uTime;
     uniform vec2 uMouse;
+    uniform vec4 uObstacles[8];
 
     varying vec2 vUv;
     varying float vElevation;
@@ -383,7 +398,40 @@ const beachMaterial = new THREE.ShaderMaterial({
       float distToMouse = distance(uv, uMouse);
       float mouseImpact = sin(distToMouse * 30.0 - uTime * 4.0) * smoothstep(0.25, 0.0, distToMouse) * 0.08;
 
-      float elevation = (swell + ripples + mouseImpact) * waterMask;
+      // Physical Obstacle Wave Collision & Deflection (All 5 Rocks + 3 Tree Trunks)
+      vec2 vertWorld = vec2(position.x, -position.y - 6.0);
+      vec2 waveFlow = normalize(vec2(-0.50, 0.55)); // Direction of incoming waves toward shore
+      float collisionSurge = 0.0;
+      float deflectionWaves = 0.0;
+      float wakeAttenuation = 1.0;
+
+      for (int i = 0; i < 8; i++) {
+        vec2 toObs = vertWorld - uObstacles[i].xy;
+        float d = length(toObs);
+        float rad = uObstacles[i].z;
+        float strength = uObstacles[i].w;
+
+        if (d < rad * 3.4) {
+          vec2 normObs = toObs / max(d, 0.001);
+          float seawardImpact = max(0.0, -dot(normObs, waveFlow)); // Seaward-facing surface
+          float leeward = max(0.0, dot(normObs, waveFlow));       // Sheltered lee side
+
+          // 1. Kinetic wave surge pileup against solid rock/tree face
+          float surgePhase = sin(waveAngle + 1.25) * 0.5 + 0.5;
+          float surge = seawardImpact * pow(surgePhase, 1.6) * smoothstep(rad * 2.2, rad * 0.82, d) * 0.22 * strength;
+
+          // 2. Physical flow deflection (concentric diffraction rings bending around obstacle)
+          float rippleRings = sin(d * 14.0 - uTime * 3.6) * smoothstep(rad * 2.5, rad * 0.95, d) * 0.045 * strength;
+
+          // 3. Leeward wake attenuation (quieter water directly behind obstacle)
+          wakeAttenuation *= (1.0 - leeward * smoothstep(rad * 2.8, rad * 1.0, d) * 0.42);
+
+          collisionSurge += surge;
+          deflectionWaves += rippleRings;
+        }
+      }
+
+      float elevation = ((swell * wakeAttenuation + ripples + mouseImpact) + (collisionSurge + deflectionWaves)) * waterMask;
       newPosition.z += elevation;
 
       vElevation = elevation;
@@ -412,6 +460,7 @@ const beachMaterial = new THREE.ShaderMaterial({
     uniform vec3 uLightDir;
     uniform vec3 uContactShadows[6];
     uniform float uContactStrength;
+    uniform vec4 uObstacles[8];
 
     varying vec2 vUv;
     varying float vElevation;
@@ -504,24 +553,46 @@ const beachMaterial = new THREE.ShaderMaterial({
 
         float capMask = smoothstep(0.065, 0.12, vElevation) * smoothstep(0.52, 0.90, coord);
 
-        vec2 rockPos1 = vec2(3.6, -1.8);
-        float rockSkirt1 = smoothstep(0.8, 0.25, length(vWorldPosition.xz - rockPos1)) *
-                           smoothstep(waterBorder + 0.01, waterBorder + 0.25, coord);
-        vec2 rockPos2 = vec2(5.6, -5.8);
-        float rockSkirt2 = smoothstep(1.2, 0.4, length(vWorldPosition.xz - rockPos2)) *
-                           smoothstep(waterBorder + 0.01, waterBorder + 0.25, coord);
-        float rockMask = rockSkirt1 * 0.35 + rockSkirt2 * 0.3;
+        // 4. MULTI-OBSTACLE DYNAMIC CRASH FROTH & PERIMETER AERATION (All 5 Rocks + 3 Island Trees)
+        float obstacleCollisionFoam = 0.0;
+        vec2 waveFlow = normalize(vec2(-0.50, 0.55));
+        float waveAngle = (vUv.x * 0.5 + vUv.y * 0.5) * 36.0 - uTime * 2.2;
+
+        for (int i = 0; i < 8; i++) {
+          vec2 toObs = vWorldPosition.xz - uObstacles[i].xy;
+          float d = length(toObs);
+          float rad = uObstacles[i].z;
+          float strength = uObstacles[i].w;
+
+          if (d < rad * 2.8) {
+            vec2 normObs = toObs / max(d, 0.001);
+            float seaward = max(0.0, -dot(normObs, waveFlow));
+
+            // Continuous capillary perimeter wash collar around rock/tree base
+            float collar = smoothstep(rad * 1.7, rad * 0.88, d) * strength;
+
+            // Explosive dynamic white crash froth surging against seaward face with incoming wave crests
+            float wavePhase = sin(waveAngle + 1.25) * 0.5 + 0.5;
+            float crashFroth = pow(wavePhase, 1.4) * seaward * smoothstep(rad * 2.0, rad * 0.85, d) * 1.6 * strength;
+
+            // Swash backwash suds around perimeter
+            float backwash = smoothstep(rad * 1.4, rad * 0.92, d) * 0.35 * strength;
+
+            obstacleCollisionFoam += (collar * 0.40 + crashFroth * 0.85 + backwash);
+          }
+        }
+        obstacleCollisionFoam = clamp(obstacleCollisionFoam, 0.0, 1.0);
 
         float totalFoam = 0.0;
-        if (shoreFoamBand + capMask + rockMask > 0.0) {
+        if (shoreFoamBand + capMask + obstacleCollisionFoam > 0.0) {
           vec2 bubbleUv = vUv * vec2(110.0, 95.0) + vec2(uTime * 0.25, -uTime * 0.15);
           float lace = smoothstep(0.30, 0.70, cellular2x2(bubbleUv));
           float clumps = smoothstep(-0.05, 0.40, fbm2(vUv * 30.0 + vec2(uTime * 0.15, -uTime * 0.08)));
           totalFoam = clamp(
             shoreFoamBand * lace * clumps * 0.65 +
             capMask * lace * 0.45 +
-            rockMask * lace,
-            0.0, 0.60
+            obstacleCollisionFoam * mix(lace, 1.0, 0.35),
+            0.0, 0.75
           );
         }
 
@@ -649,7 +720,7 @@ Promise.all([
   setupRock(rock2.scene, 0.42, { x: 3.6, y: -0.28, z: -1.8 }, Math.PI * 0.2, true);
 
   // 3. Low rocks on left shoreline
-  setupRock(rock3.scene, 0.38, { x: -3.2, y: -0.21, z: 0.2 }, Math.PI * 0.35, false);
+  setupRock(rock3.scene, 0.38, { x: -3.2, y: -0.21, z: 0.2 }, Math.PI * 0.35, true);
 
   // 4. Distant headland ridge
   setupRock(rock4.scene, 0.58, { x: -5.0, y: -0.20, z: -3.8 }, Math.PI * 0.7, true);
