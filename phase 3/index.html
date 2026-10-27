@@ -4,11 +4,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js - Phase 3 Task 1: GLSL Fundamentals</title>
+  <title>Three.js - Tropical Coastline & Procedural Ocean</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
+  <!-- High-End 3D Asset Loading Screen -->
+  <div id="loader-screen">
+    <div class="loader-content">
+      <div class="loader-spinner-wrapper">
+        <div class="ripple-ring r1"></div>
+        <div class="ripple-ring r2"></div>
+        <div class="ripple-ring r3"></div>
+        <div class="core-icon">🏝️</div>
+      </div>
+      
+      <h1 class="loader-title">Tropical Shoreline</h1>
+      <p class="loader-subtitle">Streaming 3D Models & PBR Textures</p>
+      
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      
+      <div class="loader-footer">
+        <span class="loader-status" id="loader-status">Initializing WebGL scene...</span>
+        <span class="progress-percentage" id="progress-text">0%</span>
+      </div>
+    </div>
+  </div>
+
   <canvas id="canvas"></canvas>
   <script type="module" src="./task2.js"></script>
 </body>

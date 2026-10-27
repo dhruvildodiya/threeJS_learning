@@ -55,15 +55,66 @@ renderer.shadowMap.autoUpdate = false;
 // Fog to soften the ocean/sky seam and add atmospheric depth toward the horizon
 scene.fog = new THREE.FogExp2(0x8ea8be, 0.012);
 
+// Loading screen DOM references
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const loaderStatus = document.getElementById('loader-status');
+const loaderScreen = document.getElementById('loader-screen');
+
+let isSceneReady = false;
+let isAssetsLoaded = false;
+
+function finishLoadingIfReady() {
+  if (isSceneReady && isAssetsLoaded) {
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressText) progressText.textContent = '100%';
+    if (loaderStatus) loaderStatus.textContent = 'Welcome to the Coastline';
+
+    // Allow a brief moment for textures/shadows to settle, then smoothly fade out
+    setTimeout(() => {
+      if (loaderScreen) {
+        loaderScreen.classList.add('fade-out');
+        setTimeout(() => {
+          if (loaderScreen.parentNode) {
+            loaderScreen.parentNode.removeChild(loaderScreen);
+          }
+        }, 900);
+      }
+    }, 450);
+  }
+}
+
 // Shared loading manager: fires once every model/texture referenced by the
-// GLTF loaders has finished, then bakes the static shadow map a single time.
+// GLTF, HDR, and texture loaders has finished.
 const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+  const percent = Math.min(Math.round((itemsLoaded / itemsTotal) * 100), 100);
+  if (progressBar) progressBar.style.width = `${percent}%`;
+  if (progressText) progressText.textContent = `${percent}%`;
+
+  const rawFilename = url.split('/').pop().split('?')[0];
+  const cleanName = decodeURIComponent(rawFilename);
+  if (loaderStatus && cleanName) {
+    loaderStatus.textContent = `Streaming ${cleanName}`;
+  }
+};
+
 loadingManager.onLoad = () => {
   renderer.shadowMap.needsUpdate = true;
+  isAssetsLoaded = true;
+  finishLoadingIfReady();
+};
+
+loadingManager.onError = (url) => {
+  console.warn('Error loading asset:', url);
+  // Ensure we still dismiss loader if non-critical asset fails
+  isAssetsLoaded = true;
+  finishLoadingIfReady();
 };
 
 // Load HDR Environment (Aristea Wreck Pure Sky)
-const rgbeLoader = new RGBELoader();
+const rgbeLoader = new RGBELoader(loadingManager);
 rgbeLoader.load('./environment/aristea_wreck_puresky_2k.hdr', (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.background = texture;
@@ -243,7 +294,7 @@ const noiseShaderChunk = /* glsl */ `
 `;
 
 // 2. Load Beach Sand Textures
-const textureLoader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader(loadingManager);
 const maxAniso = renderer.capabilities.getMaxAnisotropy();
 
 const sandDiffTexture = textureLoader.load('./textures/beach/textures/aerial_beach_01_diff_2k.jpg');
@@ -510,7 +561,7 @@ mesh.position.set(0, -0.05, -6.0);
 scene.add(mesh);
 
 // 6. Load Coastal 3D Rock & Tree Models with Promise.all
-const gltfLoader = new GLTFLoader();
+const gltfLoader = new GLTFLoader(loadingManager);
 
 function loadGLTF(url) {
   return new Promise((resolve, reject) => {
@@ -616,8 +667,12 @@ Promise.all([
   setupTree(tree3, 0.60, { x: -2.7, y: -0.08, z: 1.1 }, 2.2, -0.07);
 
   renderer.shadowMap.needsUpdate = true;
+  isSceneReady = true;
+  finishLoadingIfReady();
 }).catch((err) => {
   console.error("Failed to load models via Promise.all:", err);
+  isSceneReady = true;
+  finishLoadingIfReady();
 });
 
 // ============================================================================

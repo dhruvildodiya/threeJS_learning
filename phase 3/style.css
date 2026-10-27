@@ -6,10 +6,205 @@
 
 body {
   overflow: hidden;
+  background-color: #0b1926;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #f1f5f9;
 }
 
 canvas {
   display: block;
   width: 100vw;
   height: 100vh;
+}
+
+/* ==========================================================================
+   High-End Glassmorphic Loader Screen
+   ========================================================================== */
+#loader-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 40%, rgba(20, 52, 78, 0.96) 0%, rgba(8, 22, 34, 0.98) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1), transform 0.85s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.85s ease;
+  user-select: none;
+}
+
+#loader-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.03);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 440px;
+  width: 90%;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45),
+              0 0 40px rgba(56, 189, 248, 0.12),
+              inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Animated Ripple Ring Icon */
+.loader-spinner-wrapper {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.core-icon {
+  font-size: 38px;
+  z-index: 2;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  animation: pulse-island 3s ease-in-out infinite;
+}
+
+.ripple-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+  animation: ripple 2.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.ripple-ring.r1 {
+  width: 60px;
+  height: 60px;
+  animation-delay: 0s;
+}
+
+.ripple-ring.r2 {
+  width: 80px;
+  height: 80px;
+  animation-delay: 0.9s;
+}
+
+.ripple-ring.r3 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 1.8s;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-island {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.06);
+  }
+}
+
+/* Typography */
+.loader-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+
+.loader-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+/* Progress Bar */
+.progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  margin-bottom: 14px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 50%, #34d399 100%);
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.8),
+              0 0 32px rgba(129, 140, 248, 0.5);
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Status & Percentage */
+.loader-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.loader-status {
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 75%;
+  text-align: left;
+}
+
+.progress-percentage {
+  color: #38bdf8;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
