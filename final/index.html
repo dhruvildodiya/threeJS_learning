@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio Reactive Ocean World | Three.js Experience</title>
+  <meta name="description" content="A real-time 3D audio-reactive ocean world featuring custom Blender models, GLSL Gerstner wave ocean shaders, and Web Audio frequency analysis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- 3D Canvas -->
+  <canvas id="webgl"></canvas>
+
+  <!-- Lens vignette effect -->
+  <div class="vignette-overlay"></div>
+
+  <!-- Hidden File Input for Audio Upload -->
+  <input type="file" id="audio-file-input" accept="audio/*" style="display: none;" />
+
+  <!-- Initial User Interaction / Welcome Modal -->
+  <div id="start-modal" class="start-modal-backdrop">
+    <div class="start-card">
+      <div class="start-badge">WebGL • Web Audio API • GLSL Shaders • Blender 3D</div>
+      <h1 class="start-title">Audio Reactive Ocean World</h1>
+      <p class="start-desc">
+        Music controls an entire 3D ecosystem. Real-time frequency analysis drives Gerstner ocean waves,
+        wind sway on palm trees, a sweeping lighthouse beacon, bioluminescent fireflies, and atmosphere.
+      </p>
+
+      <div class="start-options">
+        <button id="btn-start-demo" class="btn-primary-launch">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <span>Launch & Play Demo Track</span>
+        </button>
+
+        <div class="start-alt-actions">
+          <button id="btn-start-upload" class="btn-secondary-action">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Upload Your Music (.mp3 / .wav)</span>
+          </button>
+
+          <button id="btn-start-mic" class="btn-secondary-action">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <span>Live Microphone</span>
+          </button>
+
+          <button id="btn-start-silent" class="btn-ghost-action">
+            <span>Explore Quietly</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD Overlay -->
+  <div class="ui-overlay">
+    <!-- Top Bar: Branding & Live Audio Frequency Panel -->
+    <header class="hud-top-bar">
+      <div class="brand-block">
+        <div class="brand-badge">Blender 3D Models • Three.js</div>
+        <h1 class="brand-title">Audio Reactive Ocean World</h1>
+        <p class="brand-subtitle">Music controls an entire 3D world</p>
+      </div>
+
+      <!-- Real-time Frequency Spectrum Meters (matches reference graphic) -->
+      <div class="audio-analysis-panel">
+        <div class="panel-header">
+          <span class="panel-title">Audio Reactivity</span>
+          <div id="beat-indicator" class="beat-pill">
+            <span class="beat-dot"></span>
+            <span class="beat-label">BEAT</span>
+          </div>
+        </div>
+
+        <div class="bands-grid">
+          <!-- Bass -->
+          <div class="band-item">
+            <div class="band-meta">
+              <span class="band-icon cyan">≋</span>
+              <span class="band-name">Bass</span>
+              <span class="band-target">Ocean Waves</span>
+            </div>
+            <div class="meter-track"><div id="meter-bass" class="meter-bar cyan"></div></div>
+          </div>
+
+          <!-- Mid -->
+          <div class="band-item">
+            <div class="band-meta">
+              <span class="band-icon emerald">𐠒</span>
+              <span class="band-name">Mid</span>
+              <span class="band-target">Trees & Beacon</span>
+            </div>
+            <div class="meter-track"><div id="meter-mid" class="meter-bar emerald"></div></div>
+          </div>
+
+          <!-- High -->
+          <div class="band-item">
+            <div class="band-meta">
+              <span class="band-icon violet">✦</span>
+              <span class="band-name">High</span>
+              <span class="band-target">Particles & Sparkles</span>
+            </div>
+            <div class="meter-track"><div id="meter-high" class="meter-bar violet"></div></div>
+          </div>
+
+          <!-- Volume -->
+          <div class="band-item">
+            <div class="band-meta">
+              <span class="band-icon amber">☼</span>
+              <span class="band-name">Energy</span>
+              <span class="band-target">Atmosphere</span>
+            </div>
+            <div class="meter-track"><div id="meter-vol" class="meter-bar amber"></div></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Bottom Bar: Player Controls & Camera Mode Bar -->
+    <footer class="hud-bottom-bar">
+      <!-- Media Player HUD -->
+      <div class="player-hud">
+        <div class="player-left">
+          <button id="btn-play-pause" class="btn-play-circle" title="Play / Pause">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </button>
+          <div class="track-info">
+            <span id="track-title" class="track-name">Ocean Melodies (Demo Track)</span>
+            <span id="time-display" class="time-readout">00:00 / 00:00</span>
+          </div>
+        </div>
+
+        <div class="player-center">
+          <input type="range" id="audio-progress" min="0" max="100" value="0" step="0.1" class="scrub-slider" />
+          <div class="source-pills">
+            <button id="btn-source-demo" class="pill-btn active">Demo Track</button>
+            <button id="btn-source-upload" class="pill-btn">Upload</button>
+            <button id="btn-source-mic" class="pill-btn">Mic</button>
+          </div>
+        </div>
+
+        <div class="player-right">
+          <button id="btn-mute" class="btn-icon" title="Mute">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+          <input type="range" id="volume-slider" min="0" max="100" value="80" class="volume-slider" />
+        </div>
+      </div>
+
+      <!-- Camera & Settings HUD -->
+      <div class="camera-hud">
+        <div class="hud-group">
+          <span class="group-label">Camera</span>
+          <div class="toggle-segmented">
+            <button id="btn-cam-cinematic" class="seg-btn active">Cinematic</button>
+            <button id="btn-cam-free" class="seg-btn">Free Orbit</button>
+          </div>
+        </div>
+
+        <div class="hud-group">
+          <span class="group-label">Shots</span>
+          <div class="shot-buttons">
+            <button class="btn-shot active" data-shot="overview">Overview</button>
+            <button class="btn-shot" data-shot="dockHero">Dock</button>
+            <button class="btn-shot" data-shot="lighthouseHero">Lighthouse</button>
+            <button class="btn-shot" data-shot="birdsEye">Aerial</button>
+          </div>
+        </div>
+
+        <div class="hud-group">
+          <span class="group-label">Quality</span>
+          <select id="quality-select" class="dropdown-select">
+            <option value="high" selected>High (Bloom + 2x DPR)</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low (Battery Saver)</option>
+          </select>
+        </div>
+
+        <div class="hud-group">
+          <label class="toggle-label" title="Toggle UnrealBloom Glow">
+            <input type="checkbox" id="toggle-bloom" checked />
+            <span>Bloom</span>
+          </label>
+        </div>
+
+        <button id="btn-toggle-debug" class="btn-icon" title="Toggle Debug Panel (Hotkey: H)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -11,6 +11,7 @@ A curated repository exploring **Three.js**, **WebGL**, physically based renderi
 - [Getting Started](#getting-started)
   - [Running Phase 1](#running-phase-1)
   - [Running Phase 2](#running-phase-2)
+  - [Running Phase 6](#running-phase-6)
 - [Phase 1: Deep Dive, Tasks & Mini Projects](#phase-1-deep-dive-tasks--mini-projects)
   - [Foundational Tasks (1 to 10)](#foundational-tasks-1-to-10)
     - [Task 1: Core WebGL Setup & Canvas Initialization](#task-1-core-webgl-setup--canvas-initialization-task1js)
@@ -43,6 +44,12 @@ A curated repository exploring **Three.js**, **WebGL**, physically based renderi
   - [11. InstancedMesh & Large Object Rendering (`task6.js`)](#11-instancedmesh--large-object-rendering-task6js)
   - [12. Scene Management & Reusable Components (`phase 1/src/`)](#12-scene-management--reusable-components-phase-1src)
   - [13. Scroll-Based 3D Experiences](#13-scroll-based-3d-experiences)
+- [Phase 6: Audio Reactivity & Web Audio API](#phase-6-audio-reactivity--web-audio-api)
+  - [Architecture & The Audio Graph](#architecture--the-audio-graph)
+  - [Day 1: Web Audio API Fundamentals (`day1.js`)](#day-1-web-audio-api-fundamentals-day1js)
+  - [Day 2: Audio Analysis & FFT (`day2.js`)](#day-2-audio-analysis--fft-day2js)
+  - [Frequency Ranges & 3D Mapping](#frequency-ranges--3d-mapping)
+  - [Switching Days in Phase 6](#switching-days-in-phase-6)
 - [Asset Pipeline & Automation](#asset-pipeline--automation)
 - [Switching Active Scenes in Phase 1](#switching-active-scenes-in-phase-1)
 - [UI & Styling Aesthetics](#ui--styling-aesthetics)
@@ -99,6 +106,24 @@ ThreeJS/
     ├── task4.js                        # Task 4: Post-processing pipeline (Bloom, Outline, Vignette)
     ├── task5.js                        # Task 5: Custom GLSL ShaderMaterials (Waves, Dissolve, Shield, Gradient)
     └── task6.js                        # Task 6: InstancedMesh (~2,300 pillars), Spring physics & OnBeforeCompile
+│
+├── phase 6/                            # Phase 6: Audio Reactivity & Web Audio API
+│   ├── index.html                      # Entry HTML with live oscilloscope & meter HUD
+│   ├── style.css                       # Modern dark glassmorphism visualizer UI
+│   ├── package.json                    # Phase 6 dependencies (Three.js v0.174.0, Vite)
+│   ├── vite.config.js                  # Phase 6 Vite dev server config (port 5177)
+│   ├── public/                         # Static audio assets
+│   │   └── The Rare Occasions - Notion.mp3
+│   ├── day1.js                         # Day 1: AudioContext, GainNode, AudioBuffer, volume & playback
+│   └── day2.js                         # Day 2: AnalyserNode, FFT, frequency bands & oscilloscope
+│
+└── final/                              # Final Project: Production-grade Three.js Application
+    ├── index.html                      # Entry HTML with canvas & interactive HUD
+    ├── style.css                       # Sleek dark glassmorphism design system
+    ├── package.json                    # Three.js (v0.186.0), GSAP (v3.15.0), Lenis (v1.3.26)
+    ├── vite.config.js                  # Vite dev server config (port 5180)
+    ├── public/                         # Public asset directory
+    └── src/                            # Modular ES6 architecture (scenes, cameras, lights, models, etc.)
 ```
 
 ---
@@ -134,6 +159,15 @@ npm install
 npm run dev
 ```
 Phase 2 will start at `http://localhost:5174` with hot module replacement (HMR) ready for development.
+
+### Running Phase 6
+
+```bash
+cd "phase 6"
+npm install
+npm run dev
+```
+Phase 6 will start at `http://localhost:5177` (or the URL printed in the terminal).
 
 ---
 
@@ -432,6 +466,73 @@ npm run dev
 
 ---
 
+## Phase 6: Audio Reactivity & Web Audio API
+
+Phase 6 introduces the browser's native **Web Audio API** and bridges audio frequency and waveform data into Three.js visual systems, particle engines, cameras, and GLSL shaders.
+
+### Architecture & The Audio Graph
+
+Audio processing in the Web Audio API operates as a directed routing graph:
+
+```text
+[ AudioBufferSourceNode ] ──► [ AnalyserNode (FFT) ] ──► [ GainNode (Volume) ] ──► [ Destination (Speakers) ]
+  (Decoded Track in RAM)          (Pass-through FFT)           (gain.value)             (audioContext.destination)
+```
+
+---
+
+### Day 1: Web Audio API Fundamentals (`day1.js`)
+*Foundations of Web Audio nodes, audio buffer decoding, volume control, and playback lifecycle.*
+- **Key Concepts:**
+  - **`AudioContext`**: Master controller for clock timing, sample rate (44.1 kHz / 48 kHz), and node creation. Adheres to browser autoplay policies requiring user gestures (`click`) to resume from `'suspended'` state.
+  - **`AudioBuffer`**: Uncompressed Float32 PCM audio data held in memory, decoded via `audioContext.decodeAudioData(arrayBuffer)`.
+  - **`AudioBufferSourceNode`**: Lightweight, single-use player node that reads an `AudioBuffer` and streams sound into the graph (`.start(0)`, `.stop()`, `.loop = true`).
+  - **`GainNode`**: Amplitude multiplier controlling volume (`gain.value = 0.0` to `1.0+`).
+  - **Basic Audio Routing**: Constructing the linear pipeline `sourceNode.connect(gainNode); gainNode.connect(audioContext.destination);`.
+- **Implementation:** [`phase 6/day1.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%206/day1.js)
+
+---
+
+### Day 2: Audio Analysis & FFT (`day2.js`)
+*Extracting real-time spectral frequency data and time-domain waveforms.*
+- **Key Concepts:**
+  - **`AnalyserNode`**: Pass-through diagnostic node that takes real-time mathematical snapshots of audio without modifying what is heard.
+  - **FFT (Fast Fourier Transform)**: Algorithm that splits complex sound waves into discrete frequency pitch buckets.
+    - `analyser.fftSize = 1024` $\rightarrow$ yields `frequencyBinCount = 512` frequency bins.
+    - `analyser.smoothingTimeConstant = 0.8` $\rightarrow$ provides smooth, organic visual interpolation without frame jitter.
+  - **Time-Domain Waveform (`getByteTimeDomainData`)**: Physical air-pressure waveform values centered at `128` (ranging from `0` to `255`), rendered via 2D Canvas oscilloscope.
+  - **Frequency Spectrum Data (`getByteFrequencyData`)**: Loudness levels per pitch bucket (ranging from `0` silent to `255` peak loudness).
+- **Implementation:** [`phase 6/day2.js`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%206/day2.js)
+
+---
+
+### Frequency Ranges & 3D Mapping
+
+At a $44,100\text{ Hz}$ sample rate and $\text{fftSize} = 1024$, each bin represents $\approx 43.06\text{ Hz}$ ($\frac{\text{sampleRate}}{\text{fftSize}}$):
+
+| Frequency Range | FFT Bins | Musical Elements | Three.js Visual Mapping |
+| :--- | :--- | :--- | :--- |
+| **Bass** ($20 - 250\text{ Hz}$) | Bins $1 - 6$ | Kick drums, 808 sub-bass, bass guitars | Object scale, geometry displacement, shockwaves |
+| **Mid** ($250 - 4000\text{ Hz}$) | Bins $6 - 92$ | Vocals, guitars, piano, synth leads | Object rotation, fluid vortices, camera sway |
+| **High** ($4000 - 16000\text{ Hz}$) | Bins $92 - 370$ | Hi-hats, cymbals, snare snap, sibilance | Particle shimmers, glowing wireframes, neon strobes |
+| **Overall Volume** | Full Spectrum | Total instantaneous track energy | Global bloom intensity, camera shake, ambient light |
+
+---
+
+### Switching Days in Phase 6
+
+To switch the active script in Phase 6, open [`phase 6/index.html`](file:///Users/ztlab82/Dhruvil/ThreeJS/phase%206/index.html) and toggle the module script tag at the bottom of the body:
+
+```html
+<!-- Example: Run Day 1 (Web Audio API Fundamentals) -->
+<!-- <script type="module" src="./day1.js"></script> -->
+
+<!-- Example: Run Day 2 (Audio Analysis & FFT - Default) -->
+<script type="module" src="./day2.js"></script>
+```
+
+---
+
 ## Asset Pipeline & Automation
 
 Phase 1 includes automated Node.js scripts for processing 3D asset textures:
@@ -484,6 +585,20 @@ Both Phase 1 and Phase 2 adhere to modern UI/UX design standards:
 | `npm run dev` | Starts Phase 2 Vite dev server on port 5174 |
 | `npm run build` | Bundles Phase 2 for production |
 | `npm run preview` | Previews Phase 2 production build |
+
+### Phase 6 (`cd "phase 6"`)
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts Phase 6 Vite dev server on port 5177 |
+| `npm run build` | Bundles Phase 6 for production |
+| `npm run preview` | Previews Phase 6 production build |
+
+### Final Project (`cd "final"`)
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts Final Project Vite dev server on port 5180 |
+| `npm run build` | Bundles Final Project for production |
+| `npm run preview` | Previews Final Project production build |
 
 ---
 

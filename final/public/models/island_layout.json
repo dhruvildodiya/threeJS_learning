@@ -1,0 +1,1536 @@
+{
+ "units": "meters",
+ "note": "three = [x, z, -y] of Blender coords; island origin at waterline centre; ocean at y=0",
+ "items": [
+  {
+   "model": "Island",
+   "blender": [
+    0,
+    0,
+    0
+   ],
+   "three": [
+    0,
+    0,
+    0
+   ],
+   "rotationY": 0.0,
+   "scale": 1.0
+  },
+  {
+   "model": "Lighthouse_Body",
+   "blender": [
+    -3.0,
+    3.5,
+    12.1
+   ],
+   "three": [
+    -3.0,
+    12.1,
+    -3.5
+   ],
+   "rotationY": 0.0,
+   "scale": 1.0
+  },
+  {
+   "model": "Hut",
+   "blender": [
+    5.0,
+    -4.0,
+    9.45
+   ],
+   "three": [
+    5.0,
+    9.45,
+    4.0
+   ],
+   "rotationY": 1.5708,
+   "scale": 1.0
+  },
+  {
+   "model": "Dock",
+   "blender": [
+    15.802,
+    0,
+    0
+   ],
+   "three": [
+    15.802,
+    0,
+    0
+   ],
+   "rotationY": -1.5708,
+   "scale": 1.5
+  },
+  {
+   "model": "Rowboat",
+   "blender": [
+    18.102,
+    -2.6,
+    0.0
+   ],
+   "three": [
+    18.102,
+    0.0,
+    2.6
+   ],
+   "rotationY": 0.15,
+   "scale": 1.0
+  },
+  {
+   "model": "Palm_A",
+   "blender": [
+    6.206,
+    3.593,
+    9.107
+   ],
+   "three": [
+    6.206,
+    9.107,
+    -3.593
+   ],
+   "rotationY": 2.5274,
+   "scale": 0.965
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    5.249,
+    12.762,
+    8.6
+   ],
+   "three": [
+    5.249,
+    8.6,
+    -12.762
+   ],
+   "rotationY": 1.3682,
+   "scale": 1.048
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    -4.547,
+    -10.075,
+    8.527
+   ],
+   "three": [
+    -4.547,
+    8.527,
+    10.075
+   ],
+   "rotationY": 2.426,
+   "scale": 1.046
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    3.621,
+    6.935,
+    9.791
+   ],
+   "three": [
+    3.621,
+    9.791,
+    -6.935
+   ],
+   "rotationY": 4.6432,
+   "scale": 0.991
+  },
+  {
+   "model": "Palm_A",
+   "blender": [
+    5.384,
+    -12.409,
+    9.185
+   ],
+   "three": [
+    5.384,
+    9.185,
+    12.409
+   ],
+   "rotationY": 3.282,
+   "scale": 1.073
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    -8.725,
+    -2.262,
+    9.674
+   ],
+   "three": [
+    -8.725,
+    9.674,
+    2.262
+   ],
+   "rotationY": 3.2894,
+   "scale": 1.055
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    1.383,
+    -10.511,
+    8.959
+   ],
+   "three": [
+    1.383,
+    8.959,
+    10.511
+   ],
+   "rotationY": 4.2455,
+   "scale": 0.936
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    -4.702,
+    -4.633,
+    9.384
+   ],
+   "three": [
+    -4.702,
+    9.384,
+    4.633
+   ],
+   "rotationY": 1.3722,
+   "scale": 0.995
+  },
+  {
+   "model": "Palm_B",
+   "blender": [
+    1.211,
+    10.664,
+    9.648
+   ],
+   "three": [
+    1.211,
+    9.648,
+    -10.664
+   ],
+   "rotationY": 3.6488,
+   "scale": 1.081
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    -6.35,
+    -1.072,
+    10.652
+   ],
+   "three": [
+    -6.35,
+    10.652,
+    1.072
+   ],
+   "rotationY": 4.9902,
+   "scale": 1.293
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    4.303,
+    1.5,
+    9.83
+   ],
+   "three": [
+    4.303,
+    9.83,
+    -1.5
+   ],
+   "rotationY": 3.7678,
+   "scale": 1.148
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    -6.285,
+    1.901,
+    12.132
+   ],
+   "three": [
+    -6.285,
+    12.132,
+    -1.901
+   ],
+   "rotationY": 2.9014,
+   "scale": 1.032
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    9.638,
+    -2.405,
+    7.601
+   ],
+   "three": [
+    9.638,
+    7.601,
+    2.405
+   ],
+   "rotationY": 3.7713,
+   "scale": 0.974
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    8.292,
+    11.931,
+    8.663
+   ],
+   "three": [
+    8.292,
+    8.663,
+    -11.931
+   ],
+   "rotationY": 0.098,
+   "scale": 1.215
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    -12.804,
+    -0.426,
+    9.186
+   ],
+   "three": [
+    -12.804,
+    9.186,
+    0.426
+   ],
+   "rotationY": 5.5472,
+   "scale": 1.293
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    -4.09,
+    9.274,
+    10.741
+   ],
+   "three": [
+    -4.09,
+    10.741,
+    -9.274
+   ],
+   "rotationY": 4.8708,
+   "scale": 0.934
+  },
+  {
+   "model": "Plant_Bush",
+   "blender": [
+    -1.264,
+    -3.218,
+    10.274
+   ],
+   "three": [
+    -1.264,
+    10.274,
+    3.218
+   ],
+   "rotationY": 5.3971,
+   "scale": 1.232
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    4.743,
+    14.411,
+    8.391
+   ],
+   "three": [
+    4.743,
+    8.391,
+    -14.411
+   ],
+   "rotationY": 0.6111,
+   "scale": 0.996
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    1.709,
+    7.315,
+    10.394
+   ],
+   "three": [
+    1.709,
+    10.394,
+    -7.315
+   ],
+   "rotationY": 3.3722,
+   "scale": 1.096
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -9.926,
+    10.325,
+    8.616
+   ],
+   "three": [
+    -9.926,
+    8.616,
+    -10.325
+   ],
+   "rotationY": 3.2112,
+   "scale": 1.154
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    8.406,
+    6.103,
+    8.918
+   ],
+   "three": [
+    8.406,
+    8.918,
+    -6.103
+   ],
+   "rotationY": 3.2737,
+   "scale": 1.332
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -5.124,
+    -2.477,
+    10.243
+   ],
+   "three": [
+    -5.124,
+    10.243,
+    2.477
+   ],
+   "rotationY": 0.9366,
+   "scale": 1.476
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    2.112,
+    -8.725,
+    9.145
+   ],
+   "three": [
+    2.112,
+    9.145,
+    8.725
+   ],
+   "rotationY": 1.0546,
+   "scale": 1.25
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    6.749,
+    8.793,
+    8.901
+   ],
+   "three": [
+    6.749,
+    8.901,
+    -8.793
+   ],
+   "rotationY": 4.4855,
+   "scale": 1.356
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -9.085,
+    2.928,
+    10.418
+   ],
+   "three": [
+    -9.085,
+    10.418,
+    -2.928
+   ],
+   "rotationY": 4.01,
+   "scale": 0.913
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    9.533,
+    -9.311,
+    8.74
+   ],
+   "three": [
+    9.533,
+    8.74,
+    9.311
+   ],
+   "rotationY": 2.3074,
+   "scale": 1.027
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    11.59,
+    6.252,
+    8.361
+   ],
+   "three": [
+    11.59,
+    8.361,
+    -6.252
+   ],
+   "rotationY": 3.96,
+   "scale": 1.402
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    8.525,
+    -7.923,
+    9.109
+   ],
+   "three": [
+    8.525,
+    9.109,
+    7.923
+   ],
+   "rotationY": 2.882,
+   "scale": 1.186
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    0.558,
+    -5.381,
+    9.357
+   ],
+   "three": [
+    0.558,
+    9.357,
+    5.381
+   ],
+   "rotationY": 2.4346,
+   "scale": 1.227
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -7.954,
+    1.499,
+    11.079
+   ],
+   "three": [
+    -7.954,
+    11.079,
+    -1.499
+   ],
+   "rotationY": 5.5307,
+   "scale": 0.965
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    9.921,
+    4.196,
+    8.271
+   ],
+   "three": [
+    9.921,
+    8.271,
+    -4.196
+   ],
+   "rotationY": 2.7944,
+   "scale": 1.399
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -3.985,
+    -8.326,
+    8.78
+   ],
+   "three": [
+    -3.985,
+    8.78,
+    8.326
+   ],
+   "rotationY": 3.6926,
+   "scale": 1.214
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -7.512,
+    7.584,
+    10.506
+   ],
+   "three": [
+    -7.512,
+    10.506,
+    -7.584
+   ],
+   "rotationY": 1.281,
+   "scale": 1.203
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -2.954,
+    12.388,
+    9.786
+   ],
+   "three": [
+    -2.954,
+    9.786,
+    -12.388
+   ],
+   "rotationY": 0.5044,
+   "scale": 0.962
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -2.564,
+    -12.281,
+    8.876
+   ],
+   "three": [
+    -2.564,
+    8.876,
+    12.281
+   ],
+   "rotationY": 4.5582,
+   "scale": 1.43
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -13.117,
+    4.4,
+    8.662
+   ],
+   "three": [
+    -13.117,
+    8.662,
+    -4.4
+   ],
+   "rotationY": 2.9036,
+   "scale": 1.21
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -3.626,
+    -0.919,
+    11.839
+   ],
+   "three": [
+    -3.626,
+    11.839,
+    0.919
+   ],
+   "rotationY": 1.569,
+   "scale": 1.235
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -7.242,
+    4.91,
+    11.81
+   ],
+   "three": [
+    -7.242,
+    11.81,
+    -4.91
+   ],
+   "rotationY": 2.3048,
+   "scale": 1.438
+  },
+  {
+   "model": "Plant_Fern",
+   "blender": [
+    -2.296,
+    8.192,
+    11.662
+   ],
+   "three": [
+    -2.296,
+    11.662,
+    -8.192
+   ],
+   "rotationY": 1.5384,
+   "scale": 1.125
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    8.404,
+    8.664,
+    8.687
+   ],
+   "three": [
+    8.404,
+    8.687,
+    -8.664
+   ],
+   "rotationY": 4.7991,
+   "scale": 1.446
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -0.262,
+    14.115,
+    8.737
+   ],
+   "three": [
+    -0.262,
+    8.737,
+    -14.115
+   ],
+   "rotationY": 2.7127,
+   "scale": 1.24
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -0.04,
+    3.007,
+    12.15
+   ],
+   "three": [
+    -0.04,
+    12.15,
+    -3.007
+   ],
+   "rotationY": 2.0526,
+   "scale": 1.177
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    4.649,
+    4.236,
+    9.739
+   ],
+   "three": [
+    4.649,
+    9.739,
+    -4.236
+   ],
+   "rotationY": 5.2032,
+   "scale": 1.4
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    8.488,
+    4.513,
+    8.799
+   ],
+   "three": [
+    8.488,
+    8.799,
+    -4.513
+   ],
+   "rotationY": 5.6205,
+   "scale": 1.147
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -1.98,
+    -1.946,
+    10.959
+   ],
+   "three": [
+    -1.98,
+    10.959,
+    1.946
+   ],
+   "rotationY": 5.998,
+   "scale": 1.103
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    2.002,
+    9.043,
+    9.888
+   ],
+   "three": [
+    2.002,
+    9.888,
+    -9.043
+   ],
+   "rotationY": 4.0241,
+   "scale": 0.993
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -11.963,
+    6.562,
+    8.736
+   ],
+   "three": [
+    -11.963,
+    8.736,
+    -6.562
+   ],
+   "rotationY": 4.9331,
+   "scale": 1.504
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -7.818,
+    -8.271,
+    8.845
+   ],
+   "three": [
+    -7.818,
+    8.845,
+    8.271
+   ],
+   "rotationY": 4.1831,
+   "scale": 0.855
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.743,
+    0.298,
+    12.15
+   ],
+   "three": [
+    -2.743,
+    12.15,
+    -0.298
+   ],
+   "rotationY": 5.288,
+   "scale": 1.382
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -4.141,
+    -2.24,
+    10.64
+   ],
+   "three": [
+    -4.141,
+    10.64,
+    2.24
+   ],
+   "rotationY": 1.3194,
+   "scale": 1.156
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -6.407,
+    -6.353,
+    9.031
+   ],
+   "three": [
+    -6.407,
+    9.031,
+    6.353
+   ],
+   "rotationY": 1.3644,
+   "scale": 0.96
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    8.275,
+    3.45,
+    8.747
+   ],
+   "three": [
+    8.275,
+    8.747,
+    -3.45
+   ],
+   "rotationY": 4.6968,
+   "scale": 1.112
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -1.85,
+    11.016,
+    10.053
+   ],
+   "three": [
+    -1.85,
+    10.053,
+    -11.016
+   ],
+   "rotationY": 2.9221,
+   "scale": 1.527
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -1.003,
+    -7.537,
+    8.998
+   ],
+   "three": [
+    -1.003,
+    8.998,
+    7.537
+   ],
+   "rotationY": 4.9985,
+   "scale": 0.833
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -4.01,
+    13.597,
+    8.905
+   ],
+   "three": [
+    -4.01,
+    8.905,
+    -13.597
+   ],
+   "rotationY": 4.0602,
+   "scale": 1.498
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -5.686,
+    -8.354,
+    8.992
+   ],
+   "three": [
+    -5.686,
+    8.992,
+    8.354
+   ],
+   "rotationY": 2.6715,
+   "scale": 1.044
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    13.375,
+    -4.684,
+    5.66
+   ],
+   "three": [
+    13.375,
+    5.66,
+    4.684
+   ],
+   "rotationY": 0.7184,
+   "scale": 0.831
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -10.256,
+    -2.604,
+    9.643
+   ],
+   "three": [
+    -10.256,
+    9.643,
+    2.604
+   ],
+   "rotationY": 5.5876,
+   "scale": 1.366
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    3.452,
+    0.718,
+    9.82
+   ],
+   "three": [
+    3.452,
+    9.82,
+    -0.718
+   ],
+   "rotationY": 0.5841,
+   "scale": 1.027
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -3.471,
+    -5.586,
+    9.347
+   ],
+   "three": [
+    -3.471,
+    9.347,
+    5.586
+   ],
+   "rotationY": 2.6532,
+   "scale": 1.571
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -9.306,
+    7.167,
+    10.019
+   ],
+   "three": [
+    -9.306,
+    10.019,
+    -7.167
+   ],
+   "rotationY": 2.6013,
+   "scale": 1.041
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    8.837,
+    7.46,
+    8.742
+   ],
+   "three": [
+    8.837,
+    8.742,
+    -7.46
+   ],
+   "rotationY": 2.1056,
+   "scale": 0.842
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    0.558,
+    -7.877,
+    9.084
+   ],
+   "three": [
+    0.558,
+    9.084,
+    7.877
+   ],
+   "rotationY": 0.7633,
+   "scale": 1.105
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    2.321,
+    -13.925,
+    8.617
+   ],
+   "three": [
+    2.321,
+    8.617,
+    13.925
+   ],
+   "rotationY": 5.5862,
+   "scale": 1.091
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -6.087,
+    10.644,
+    10.093
+   ],
+   "three": [
+    -6.087,
+    10.093,
+    -10.644
+   ],
+   "rotationY": 1.4497,
+   "scale": 1.537
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -1.631,
+    -13.199,
+    8.532
+   ],
+   "three": [
+    -1.631,
+    8.532,
+    13.199
+   ],
+   "rotationY": 5.5895,
+   "scale": 1.354
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -7.323,
+    -0.191,
+    10.675
+   ],
+   "three": [
+    -7.323,
+    10.675,
+    0.191
+   ],
+   "rotationY": 4.7139,
+   "scale": 1.323
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    7.063,
+    -0.208,
+    9.302
+   ],
+   "three": [
+    7.063,
+    9.302,
+    0.208
+   ],
+   "rotationY": 3.7466,
+   "scale": 0.964
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -10.005,
+    2.226,
+    10.061
+   ],
+   "three": [
+    -10.005,
+    10.061,
+    -2.226
+   ],
+   "rotationY": 4.5983,
+   "scale": 0.937
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -5.672,
+    0.984,
+    12.13
+   ],
+   "three": [
+    -5.672,
+    12.13,
+    -0.984
+   ],
+   "rotationY": 0.2874,
+   "scale": 1.478
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    6.0,
+    9.478,
+    8.955
+   ],
+   "three": [
+    6.0,
+    8.955,
+    -9.478
+   ],
+   "rotationY": 6.1389,
+   "scale": 0.891
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    5.871,
+    -11.322,
+    9.367
+   ],
+   "three": [
+    5.871,
+    9.367,
+    11.322
+   ],
+   "rotationY": 1.2578,
+   "scale": 0.832
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    5.162,
+    10.665,
+    8.958
+   ],
+   "three": [
+    5.162,
+    8.958,
+    -10.665
+   ],
+   "rotationY": 0.5869,
+   "scale": 1.306
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -3.82,
+    -12.527,
+    8.361
+   ],
+   "three": [
+    -3.82,
+    8.361,
+    12.527
+   ],
+   "rotationY": 1.4128,
+   "scale": 0.922
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.14,
+    -9.202,
+    8.812
+   ],
+   "three": [
+    -2.14,
+    8.812,
+    9.202
+   ],
+   "rotationY": 4.0931,
+   "scale": 1.363
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.549,
+    -6.891,
+    8.998
+   ],
+   "three": [
+    -2.549,
+    8.998,
+    6.891
+   ],
+   "rotationY": 0.2219,
+   "scale": 1.309
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -6.812,
+    -4.268,
+    9.284
+   ],
+   "three": [
+    -6.812,
+    9.284,
+    4.268
+   ],
+   "rotationY": 2.2166,
+   "scale": 1.136
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    8.743,
+    10.781,
+    8.711
+   ],
+   "three": [
+    8.743,
+    8.711,
+    -10.781
+   ],
+   "rotationY": 4.8828,
+   "scale": 1.41
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    12.754,
+    8.363,
+    7.734
+   ],
+   "three": [
+    12.754,
+    7.734,
+    -8.363
+   ],
+   "rotationY": 0.2061,
+   "scale": 1.262
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -1.482,
+    9.023,
+    10.885
+   ],
+   "three": [
+    -1.482,
+    10.885,
+    -9.023
+   ],
+   "rotationY": 4.2882,
+   "scale": 1.511
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.495,
+    -5.202,
+    9.493
+   ],
+   "three": [
+    -2.495,
+    9.493,
+    5.202
+   ],
+   "rotationY": 0.0337,
+   "scale": 1.153
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -0.165,
+    -3.167,
+    9.956
+   ],
+   "three": [
+    -0.165,
+    9.956,
+    3.167
+   ],
+   "rotationY": 4.2806,
+   "scale": 1.47
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    5.209,
+    6.441,
+    9.455
+   ],
+   "three": [
+    5.209,
+    9.455,
+    -6.441
+   ],
+   "rotationY": 3.232,
+   "scale": 0.956
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    9.298,
+    -11.088,
+    8.274
+   ],
+   "three": [
+    9.298,
+    8.274,
+    11.088
+   ],
+   "rotationY": 5.0962,
+   "scale": 1.586
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    4.324,
+    9.401,
+    9.311
+   ],
+   "three": [
+    4.324,
+    9.311,
+    -9.401
+   ],
+   "rotationY": 1.4663,
+   "scale": 1.208
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.506,
+    -0.682,
+    11.969
+   ],
+   "three": [
+    -2.506,
+    11.969,
+    0.682
+   ],
+   "rotationY": 1.7266,
+   "scale": 1.198
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -10.197,
+    5.0,
+    9.895
+   ],
+   "three": [
+    -10.197,
+    9.895,
+    -5.0
+   ],
+   "rotationY": 0.9579,
+   "scale": 1.095
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -2.246,
+    -10.408,
+    8.887
+   ],
+   "three": [
+    -2.246,
+    8.887,
+    10.408
+   ],
+   "rotationY": 3.5511,
+   "scale": 0.921
+  },
+  {
+   "model": "Plant_GrassTuft",
+   "blender": [
+    -9.349,
+    -9.729,
+    7.879
+   ],
+   "three": [
+    -9.349,
+    7.879,
+    9.729
+   ],
+   "rotationY": 2.1308,
+   "scale": 1.479
+  },
+  {
+   "model": "Rock_L",
+   "blender": [
+    -14.359,
+    -4.39,
+    7.633
+   ],
+   "three": [
+    -14.359,
+    7.633,
+    4.39
+   ],
+   "rotationY": 2.5844,
+   "scale": 1.279
+  },
+  {
+   "model": "Rock_L",
+   "blender": [
+    -12.515,
+    -6.745,
+    8.014
+   ],
+   "three": [
+    -12.515,
+    8.014,
+    6.745
+   ],
+   "rotationY": 5.3097,
+   "scale": 1.361
+  },
+  {
+   "model": "Rock_S",
+   "blender": [
+    14.253,
+    3.242,
+    4.095
+   ],
+   "three": [
+    14.253,
+    4.095,
+    -3.242
+   ],
+   "rotationY": 5.3195,
+   "scale": 1.137
+  },
+  {
+   "model": "Rock_L",
+   "blender": [
+    18.002,
+    6.5,
+    -0.3
+   ],
+   "three": [
+    18.002,
+    -0.3,
+    -6.5
+   ],
+   "rotationY": 2.3392,
+   "scale": 1.6
+  },
+  {
+   "model": "Rock_M",
+   "blender": [
+    20.002,
+    9.0,
+    -0.3
+   ],
+   "three": [
+    20.002,
+    -0.3,
+    -9.0
+   ],
+   "rotationY": 1.0948,
+   "scale": 1.3
+  },
+  {
+   "model": "Rock_L",
+   "blender": [
+    16.502,
+    -7.0,
+    -0.3
+   ],
+   "three": [
+    16.502,
+    -0.3,
+    7.0
+   ],
+   "rotationY": 1.0424,
+   "scale": 1.8
+  },
+  {
+   "model": "Rock_S",
+   "blender": [
+    20.502,
+    -9.5,
+    -0.3
+   ],
+   "three": [
+    20.502,
+    -0.3,
+    9.5
+   ],
+   "rotationY": 1.838,
+   "scale": 1.4
+  },
+  {
+   "model": "Rock_M",
+   "blender": [
+    14.502,
+    11.0,
+    -0.3
+   ],
+   "three": [
+    14.502,
+    -0.3,
+    -11.0
+   ],
+   "rotationY": 2.0294,
+   "scale": 1.5
+  }
+ ]
+}
