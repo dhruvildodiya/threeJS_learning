@@ -1,50 +1,45 @@
 import * as THREE from 'three';
-import type { RendererConfig } from '../config/experience.config';
+import type { Sizes } from './Sizes';
+import type { Scene } from './Scene';
+import type { Camera } from './Camera';
 
-/**
- * Renderer configures a production-quality WebGLRenderer with physically-based
- * tone mapping, SRGB color space, PCF soft shadows, and DPR limiting.
- */
 export class Renderer {
   public readonly instance: THREE.WebGLRenderer;
 
   constructor(
-    canvas: HTMLCanvasElement,
-    width: number,
-    height: number,
-    private readonly config: RendererConfig
+    private readonly canvas: HTMLCanvasElement,
+    private readonly sizes: Sizes,
+    private readonly scene: Scene,
+    private readonly camera: Camera
   ) {
     this.instance = new THREE.WebGLRenderer({
-      canvas,
+      canvas: this.canvas,
       antialias: true,
       powerPreference: 'high-performance',
       stencil: false,
-      depth: true,
     });
 
-    // Color management & tone mapping
-    this.instance.outputColorSpace = THREE.SRGBColorSpace;
-    this.instance.toneMapping = this.config.toneMapping;
-    this.instance.toneMappingExposure = this.config.toneMappingExposure;
+    this.instance.setSize(this.sizes.width, this.sizes.height);
+    this.instance.setPixelRatio(this.sizes.pixelRatio);
 
-    // Shadow configuration
     this.instance.shadowMap.enabled = true;
-    this.instance.shadowMap.type = this.config.shadowMapType;
+    this.instance.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // Sizing and DPR
-    this.resize(width, height);
+    this.instance.toneMapping = THREE.ACESFilmicToneMapping;
+    this.instance.toneMappingExposure = 1.15;
   }
 
-  public resize(width: number, height: number): void {
-    this.instance.setSize(width, height);
-    this.instance.setPixelRatio(Math.min(window.devicePixelRatio, this.config.maxPixelRatio));
+  public resize(): void {
+    this.instance.setSize(this.sizes.width, this.sizes.height);
+    this.instance.setPixelRatio(this.sizes.pixelRatio);
   }
 
-  public render(scene: THREE.Scene, camera: THREE.Camera): void {
-    this.instance.render(scene, camera);
+  public update(): void {
+    this.instance.render(this.scene.instance, this.camera.instance);
   }
 
   public destroy(): void {
     this.instance.dispose();
   }
 }
+

@@ -1,53 +1,97 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { CameraConfig } from '../config/experience.config';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import gsap from 'gsap';
+import type { Sizes } from './Sizes';
+import type { Scene } from './Scene';
 
-/**
- * Camera handles the main PerspectiveCamera and smooth OrbitControls.
- */
+export interface CameraPreset {
+  position: THREE.Vector3;
+  target: THREE.Vector3;
+}
+
 export class Camera {
   public readonly instance: THREE.PerspectiveCamera;
   public readonly controls: OrbitControls;
 
+  public readonly presets: Record<string, CameraPreset> = {
+    overview: {
+      position: new THREE.Vector3(26, 16, 26),
+      target: new THREE.Vector3(0, 3, 0),
+    },
+    lighthouse: {
+      position: new THREE.Vector3(12, 18, 12),
+      target: new THREE.Vector3(2, 10, -1),
+    },
+    hut: {
+      position: new THREE.Vector3(-14, 8, 4),
+      target: new THREE.Vector3(-4, 4.5, -2),
+    },
+    dock: {
+      position: new THREE.Vector3(16, 5, -16),
+      target: new THREE.Vector3(5, 1, -6),
+    },
+  };
+
   constructor(
-    canvas: HTMLCanvasElement,
-    width: number,
-    height: number,
-    private readonly config: CameraConfig
+    private readonly scene: Scene,
+    private readonly sizes: Sizes,
+    private readonly canvas: HTMLCanvasElement
   ) {
-    // Initialize PerspectiveCamera
     this.instance = new THREE.PerspectiveCamera(
-      this.config.fov,
-      width / height,
-      this.config.near,
-      this.config.far
+      45,
+      this.sizes.width / this.sizes.height,
+      0.1,
+      500
     );
-    this.instance.position.copy(this.config.initialPosition);
+    this.instance.position.copy(this.presets.overview.position);
 
-    // Initialize OrbitControls with damping for smooth cinematic feel
-    this.controls = new OrbitControls(this.instance, canvas);
-    this.controls.target.copy(this.config.targetPosition);
-    this.controls.enableDamping = this.config.orbitControls.enableDamping;
-    this.controls.dampingFactor = this.config.orbitControls.dampingFactor;
-    this.controls.autoRotate = this.config.orbitControls.autoRotate;
-    this.controls.autoRotateSpeed = this.config.orbitControls.autoRotateSpeed;
-    this.controls.maxPolarAngle = this.config.orbitControls.maxPolarAngle;
-    this.controls.minDistance = this.config.orbitControls.minDistance;
-    this.controls.maxDistance = this.config.orbitControls.maxDistance;
+    this.scene.instance.add(this.instance);
 
+    this.controls = new OrbitControls(this.instance, this.canvas);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.maxPolarAngle = Math.PI / 2 - 0.02; // Don't go below water
+    this.controls.minDistance = 3;
+    this.controls.maxDistance = 120;
+    this.controls.target.copy(this.presets.overview.target);
     this.controls.update();
   }
 
-  public resize(width: number, height: number): void {
-    this.instance.aspect = width / height;
+  public resize(): void {
+    this.instance.aspect = this.sizes.width / this.sizes.height;
     this.instance.updateProjectionMatrix();
   }
 
-  public update(_delta: number): void {
+  public update(): void {
     this.controls.update();
+  }
+
+  public applyPreset(name: string, duration = 1.4): void {
+    const preset = this.presets[name];
+    if (!preset) return;
+
+    gsap.killTweensOf(this.instance.position);
+    gsap.killTweensOf(this.controls.target);
+
+    gsap.to(this.instance.position, {
+      x: preset.position.x,
+      y: preset.position.y,
+      z: preset.position.z,
+      duration,
+      ease: 'power3.inOut',
+    });
+
+    gsap.to(this.controls.target, {
+      x: preset.target.x,
+      y: preset.target.y,
+      z: preset.target.z,
+      duration,
+      ease: 'power3.inOut',
+    });
   }
 
   public destroy(): void {
     this.controls.dispose();
   }
 }
+

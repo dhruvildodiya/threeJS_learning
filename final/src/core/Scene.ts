@@ -1,24 +1,27 @@
 import * as THREE from 'three';
 
-/**
- * Scene manages the primary Three.js Scene graph, background, and fog.
- */
 export class Scene {
   public readonly instance: THREE.Scene;
 
   constructor() {
     this.instance = new THREE.Scene();
-  }
-
-  public add(...objects: THREE.Object3D[]): void {
-    this.instance.add(...objects);
-  }
-
-  public remove(...objects: THREE.Object3D[]): void {
-    this.instance.remove(...objects);
+    this.instance.background = new THREE.Color(0x0e1b2d);
+    this.instance.fog = new THREE.FogExp2(0x0e1b2d, 0.012);
   }
 
   public destroy(): void {
+    this.instance.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.geometry?.dispose();
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((mat) => mat.dispose());
+        } else if (mesh.material) {
+          mesh.material.dispose();
+        }
+      }
+    });
     this.instance.clear();
   }
 }
+
