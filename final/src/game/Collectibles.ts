@@ -13,7 +13,7 @@ export interface CrystalData {
 export class Collectibles {
   public crystals: CrystalData[] = [];
   public collectedCount = 0;
-  public totalCount = 5;
+  public totalCount = 8;
 
   private scene: THREE.Scene;
   private sfx: SoundEffects;
@@ -26,18 +26,30 @@ export class Collectibles {
   }
 
   private createCrystals(): void {
-    // 5 landmark spots accurately calibrated to island terrain elevation
+    // 8 landmark spots across Lighthouse Bay and the new Forest Isle
     const spots = [
       { name: 'Lighthouse Overlook', pos: new THREE.Vector3(-5.5, 16.66, -3.5) },
       { name: 'Waterfall Basin', pos: new THREE.Vector3(-14.5, 14.16, 1.5) },
       { name: "Keeper's Cottage", pos: new THREE.Vector3(4.5, 13.15, 9.8) },
       { name: 'Sandy Beach Landing', pos: new THREE.Vector3(27.5, 3.91, 3.2) },
       { name: 'Ancient Shrine Arch', pos: new THREE.Vector3(12.0, 12.79, -10.5) },
+      { name: 'Suspension Bridge Arch', pos: new THREE.Vector3(-58.5, 9.85, 0.0) },
+      { name: 'Ancient Forest Shrine', pos: new THREE.Vector3(-92.0, 14.65, 0.0) },
+      { name: 'Secluded Forest Beach', pos: new THREE.Vector3(-85.0, 1.85, 22.0) },
     ];
 
     const geom = new THREE.OctahedronGeometry(0.38, 0);
 
-    const colors = [0x38bdf8, 0x818cf8, 0x34d399, 0xf472b6, 0xfbbf24];
+    const colors = [
+      0x38bdf8, // Sky Blue
+      0x818cf8, // Indigo
+      0x34d399, // Emerald
+      0xf472b6, // Rose
+      0xfbbf24, // Amber
+      0x10b981, // Mint
+      0xa855f7, // Mystical Violet
+      0xf97316, // Sunset Orange
+    ];
 
     spots.forEach((spot, idx) => {
       const color = colors[idx % colors.length];

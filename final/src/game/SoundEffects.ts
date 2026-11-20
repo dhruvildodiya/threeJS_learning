@@ -1,6 +1,33 @@
 export class SoundEffects {
   private ctx: AudioContext | null = null;
   private isMuted = false;
+  private doorOpenAudio: HTMLAudioElement | null = null;
+  private doorCloseAudio: HTMLAudioElement | null = null;
+
+  constructor() {
+    try {
+      this.doorOpenAudio = new Audio('./audio/dragon-studio-opening-door-450444.mp3');
+      this.doorOpenAudio.preload = 'auto';
+      this.doorOpenAudio.volume = 0.75;
+
+      this.doorCloseAudio = new Audio('./audio/dragon-studio-close-door-382723.mp3');
+      this.doorCloseAudio.preload = 'auto';
+      this.doorCloseAudio.volume = 0.75;
+    } catch {
+      // Audio element not supported in current environment
+    }
+  }
+
+  public setMuted(muted: boolean): void {
+    this.isMuted = muted;
+    if (this.doorOpenAudio) this.doorOpenAudio.muted = muted;
+    if (this.doorCloseAudio) this.doorCloseAudio.muted = muted;
+  }
+
+  public toggleMute(): boolean {
+    this.setMuted(!this.isMuted);
+    return this.isMuted;
+  }
 
   private initCtx(): void {
     if (!this.ctx) {
@@ -70,6 +97,28 @@ export class SoundEffects {
     osc.stop(t + 0.16);
   }
 
+  public playKick(): void {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(260, t);
+    osc.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.19);
+  }
+
   public playLand(): void {
     if (this.isMuted) return;
     this.initCtx();
@@ -122,6 +171,28 @@ export class SoundEffects {
 
   public playDoor(open: boolean): void {
     if (this.isMuted) return;
+
+    const audio = open ? this.doorOpenAudio : this.doorCloseAudio;
+    if (audio) {
+      try {
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Fallback to synthesized oscillator if blocked by browser autoplay policy
+            this.playSynthesizedDoor(open);
+          });
+        }
+        return;
+      } catch {
+        // Fallback
+      }
+    }
+
+    this.playSynthesizedDoor(open);
+  }
+
+  private playSynthesizedDoor(open: boolean): void {
     this.initCtx();
     if (!this.ctx) return;
 

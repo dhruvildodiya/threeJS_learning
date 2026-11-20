@@ -5,9 +5,11 @@ import { SoundEffects } from './game/SoundEffects';
 import { Player } from './game/Player';
 import { FollowCamera } from './game/FollowCamera';
 import { Collectibles } from './game/Collectibles';
+import { ForestManager } from './world/ForestManager';
 import { InteractionManager } from './game/InteractionManager';
 import { GameHUD } from './game/GameHUD';
 import { PhysicsWorld } from './physics/PhysicsWorld';
+import { DynamicPropsManager } from './game/DynamicProps';
 
 // Initialize Rapier 3D Physics
 const physics = new PhysicsWorld();
@@ -43,19 +45,19 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.32;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // 4. Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xfffaed, 0.85);
 scene.add(ambientLight);
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x3b5971, 0.9);
+const hemiLight = new THREE.HemisphereLight(0xbadcfb, 0x4a6b42, 0.95);
 hemiLight.position.set(0, 50, 0);
 scene.add(hemiLight);
 
-const sunLight = new THREE.DirectionalLight(0xfffaed, 2.2);
+const sunLight = new THREE.DirectionalLight(0xfff8e7, 2.5);
 sunLight.position.set(45, 65, 35);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.set(2048, 2048);
@@ -69,6 +71,7 @@ sunLight.shadow.camera.bottom = -d;
 sunLight.shadow.bias = -0.0003;
 sunLight.shadow.normalBias = 0.03;
 scene.add(sunLight);
+scene.add(sunLight.target);
 
 // 5. Ocean Water Disk
 const oceanGeom = new THREE.CircleGeometry(250, 64);
@@ -93,6 +96,8 @@ let followCamera: FollowCamera | null = null;
 let collectibles: Collectibles | null = null;
 let interaction: InteractionManager | null = null;
 let hud: GameHUD | null = null;
+let forestManager: ForestManager | null = null;
+const palmTrees: THREE.Object3D[] = [];
 
 // 7. Loading Manager & GLTFLoader
 const loadingManager = new THREE.LoadingManager(
@@ -138,23 +143,106 @@ loader.load('./models/island.glb', (gltf) => {
 
     if ((child as THREE.Mesh).isMesh) {
       const mesh = child as THREE.Mesh;
-      mesh.castShadow = true;
+      const isSoftFoliage =
+        mesh.name.includes('Fern') ||
+        mesh.name.includes('Grass') ||
+        mesh.name.includes('Bush') ||
+        mesh.name.includes('Flower');
+
+      mesh.castShadow = !isSoftFoliage;
       mesh.receiveShadow = true;
 
       if (mesh.material) {
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach((m) => {
-            m.shadowSide = THREE.DoubleSide;
-          });
-        } else {
-          mesh.material.shadowSide = THREE.DoubleSide;
-        }
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        mats.forEach((m) => {
+          const isFoliage =
+            mesh.name.includes('Leaf') ||
+            mesh.name.includes('Leaves') ||
+            mesh.name.includes('Grass') ||
+            mesh.name.includes('Fern') ||
+            mesh.name.includes('Birch') ||
+            mesh.name.includes('Maple') ||
+            mesh.name.includes('Bush');
+          m.shadowSide = isFoliage ? THREE.DoubleSide : null;
+          const std = m as THREE.MeshStandardMaterial;
+          std.flatShading = false;
+          if (isFoliage && std.transparent) {
+            std.alphaTest = 0.45;
+            std.depthWrite = true;
+          }
+        });
       }
 
       // Collect walkable ground / stairs / dock / hut floor
       const name = mesh.name;
+
+      // Stylized Foliage, Rock & Architecture Material Enhancements (Smooth, Matte Surfaces)
+      if (mesh.material) {
+        const origMat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material) as THREE.MeshStandardMaterial;
+
+        if (name.includes('Plant_Bush')) {
+          const bushMat = origMat.clone();
+          bushMat.metalness = 0.0;
+          bushMat.flatShading = false; // Smooth organic foliage shading (eliminates faceted rock edges & glare)
+          if (name.includes('Plant_Bush_1') || name.includes('_1') || origMat.name === 'OW_Flower') {
+            bushMat.color.setHex(0xff3d75); // Vibrant hibiscus coral blossoms
+            bushMat.roughness = 0.8;
+          } else {
+            bushMat.color.setHex(0x389b3a); // Lush tropical foliage green
+            bushMat.roughness = 0.85; // Natural matte leaf surface
+          }
+          bushMat.needsUpdate = true;
+          mesh.material = bushMat;
+        } else if (name.includes('Plant_Fern')) {
+          const fernMat = origMat.clone();
+          fernMat.color.setHex(0x43a047); // Lush tropical fern green
+          fernMat.roughness = 0.85;
+          fernMat.metalness = 0.0;
+          fernMat.flatShading = false;
+          fernMat.needsUpdate = true;
+          mesh.material = fernMat;
+        } else if (name.includes('Plant_GrassTuft')) {
+          const grassMat = origMat.clone();
+          grassMat.color.setHex(0x4caf50); // Warm golden meadow grass
+          grassMat.roughness = 0.85;
+          grassMat.metalness = 0.0;
+          grassMat.flatShading = false;
+          grassMat.needsUpdate = true;
+          mesh.material = grassMat;
+        } else if (name.includes('Palm')) {
+          palmTrees.push(mesh);
+          const palmMat = origMat.clone();
+          palmMat.metalness = 0.0;
+          palmMat.flatShading = false;
+          if (origMat.name === 'OW_Bark' || name.endsWith('Palm_A') || name.endsWith('Palm_B')) {
+            palmMat.color.setHex(0x9a6b43); // Warm fibrous coconut palm bark (visible golden-brown wood)
+            palmMat.roughness = 0.82;
+          } else if (origMat.name === 'OW_Leaf' || name.includes('_1')) {
+            palmMat.color.setHex(0x389b3f); // Sunny emerald tropical palm fronds
+            palmMat.roughness = 0.80;
+          } else if (origMat.name === 'OW_Coconut' || name.includes('_2')) {
+            palmMat.color.setHex(0x5d3a1e); // Coconut husk brown
+            palmMat.roughness = 0.85;
+          }
+          palmMat.needsUpdate = true;
+          mesh.material = palmMat;
+        } else if (name.includes('Rock') || origMat.name === 'OW_Rock') {
+          const rockMat = origMat.clone();
+          rockMat.color.setHex(0x6e7872); // Natural weathered stone grey
+          rockMat.roughness = 0.96; // Completely matte: zero polygon facet shine
+          rockMat.metalness = 0.0;
+          rockMat.flatShading = false; // Smooth interpolated boulder shading
+          rockMat.needsUpdate = true;
+          mesh.material = rockMat;
+        } else {
+          origMat.flatShading = false;
+          origMat.needsUpdate = true;
+        }
+      }
+
       if (
         name.includes('Island') ||
+        name.includes('Bridge') ||
         name.includes('Stairs') ||
         name.includes('Dock') ||
         name.includes('Path') ||
@@ -177,18 +265,33 @@ loader.load('./models/island.glb', (gltf) => {
     if ((child as THREE.Mesh).isMesh) {
       const mesh = child as THREE.Mesh;
       const name = mesh.name;
+      // Exclude non-solid decorative elements, character, and all soft foliage (bushes, ferns, grass, flowers)
       if (
         name.includes('CHR_') ||
         name.includes('Armature') ||
         name.includes('Ocean_Preview') ||
         name.startsWith('COLLISION_') ||
-        name.includes('Hut_Door')
+        name.includes('Hut_Door') ||
+        name.includes('INT_Rug') ||
+        name.includes('INT_Chart') ||
+        name.includes('INT_HangingLantern') ||
+        name.includes('Plant_Bush') ||
+        name.includes('Plant_Fern') ||
+        name.includes('Plant_GrassTuft') ||
+        name.includes('Bush') ||
+        name.includes('Fern') ||
+        name.includes('Grass') ||
+        name.includes('Flower') ||
+        name.includes('Leaf') ||
+        name.includes('Leaves') ||
+        name.includes('Crystal')
       ) {
         return;
       }
 
       if (
         name.includes('Island') ||
+        name.includes('Bridge') ||
         name.includes('Stairs') ||
         name.includes('Dock') ||
         name.includes('Path') ||
@@ -196,12 +299,30 @@ loader.load('./models/island.glb', (gltf) => {
         name.includes('Hut') ||
         name.includes('Lighthouse') ||
         name.includes('Rock') ||
-        name.includes('Fence')
+        name.includes('Fence') ||
+        name.includes('Palm') ||
+        name.includes('Shrine') ||
+        name.includes('PRP_') ||
+        name.includes('INT_') ||
+        name.includes('Rowboat') ||
+        name.includes('Forest_Log') ||
+        name.includes('Forest_Rock') ||
+        name.includes('Forest_Dead_log')
       ) {
         physics.addTrimeshCollider(mesh);
       }
     }
   });
+
+  // Solid ceiling barriers across the hut interior ceiling beams & porch overhang to prevent jumping into rafters/roof
+  physics.addBoxCollider(
+    new THREE.Vector3(1.70, 0.15, 2.15),
+    new THREE.Vector3(5.70, 15.65, 7.46)
+  );
+  physics.addBoxCollider(
+    new THREE.Vector3(1.90, 0.15, 0.85),
+    new THREE.Vector3(5.70, 15.10, 5.25)
+  );
 
   // Build occluders for follow camera (all solid structures, terrain, rocks, buildings)
   const cameraOccluders: THREE.Object3D[] = [];
@@ -216,6 +337,14 @@ loader.load('./models/island.glb', (gltf) => {
         name.startsWith('COLLISION_') ||
         name.includes('Crystal') ||
         name.includes('Plant_Bush') ||
+        name.includes('Plant_Fern') ||
+        name.includes('Plant_GrassTuft') ||
+        name.includes('Bush') ||
+        name.includes('Fern') ||
+        name.includes('Grass') ||
+        name.includes('Flower') ||
+        name.includes('Leaf') ||
+        name.includes('Leaves') ||
         name.includes('Palm_')
       ) {
         return;
@@ -224,6 +353,10 @@ loader.load('./models/island.glb', (gltf) => {
     }
   });
 
+  // Spawn dynamic physics props (crates, barrels, beach ball) that physically react, tumble & bounce
+  const dynamicProps = new DynamicPropsManager(scene, physics);
+  dynamicProps.spawnIslandProps();
+
   // Extract keeper character
   const keeperObj = model.getObjectByName('CHR_Keeper_Root');
   if (keeperObj) {
@@ -231,7 +364,7 @@ loader.load('./models/island.glb', (gltf) => {
     scene.attach(keeperObj);
 
     // Initialize Game Systems
-    player = new Player(keeperObj as THREE.Group, input, sfx);
+    player = new Player(keeperObj as THREE.Group, input, sfx, gltf.animations);
     player.setupPhysics(physics);
     player.setWalkableObjects(walkableMeshes);
 
@@ -241,6 +374,10 @@ loader.load('./models/island.glb', (gltf) => {
     collectibles = new Collectibles(scene, sfx);
     interaction = new InteractionManager(player, input, sfx, collectibles, scene, model, gltf.animations, physics);
     hud = new GameHUD(interaction, collectibles, sfx);
+
+    // Initialize & batch the forest foliage into InstancedMesh for buttery 60 FPS performance
+    forestManager = new ForestManager();
+    forestManager.optimizeAndBatchForest(model, scene, physics);
   } else {
     console.error('CHR_Keeper_Root not found in model');
   }
@@ -268,9 +405,22 @@ function animate() {
   // Step Rapier Physics
   physics.step(delta);
 
+  // Gentle ambient wind sway for tropical palm canopies
+  for (let i = 0; i < palmTrees.length; i++) {
+    const tree = palmTrees[i];
+    tree.rotation.z = Math.sin(elapsed * 1.4 + i * 0.9) * 0.012;
+    tree.rotation.x = Math.cos(elapsed * 1.1 + i * 0.9) * 0.008;
+  }
+
   if (player && followCamera) {
     player.update(delta, followCamera.yaw);
     followCamera.update(player.group.position, delta);
+
+    // Keep sunlight shadow map centered dynamically around player
+    const pPos = player.group.position;
+    sunLight.target.position.set(pPos.x, pPos.y, pPos.z);
+    sunLight.position.set(pPos.x + 35, pPos.y + 55, pPos.z + 28);
+    sunLight.target.updateMatrixWorld();
   }
 
   if (collectibles) {
@@ -283,6 +433,10 @@ function animate() {
 
   if (hud) {
     hud.update();
+  }
+
+  if (forestManager) {
+    forestManager.update(elapsed);
   }
 
   renderer.render(scene, camera);

@@ -8,6 +8,7 @@ export class InputManager {
 
   // Single-fire triggers
   public interactPressed = false;
+  public kickPressed = false;
 
   // Mouse orbit
   public mouseDeltaX = 0;
@@ -76,6 +77,11 @@ export class InputManager {
           this.interactPressed = true;
         }
         break;
+      case 'KeyF':
+        if (!e.repeat) {
+          this.kickPressed = true;
+        }
+        break;
     }
   };
 
@@ -132,6 +138,12 @@ export class InputManager {
   public consumeInteract(): boolean {
     const wasPressed = this.interactPressed;
     this.interactPressed = false;
+    return wasPressed;
+  }
+
+  public consumeKick(): boolean {
+    const wasPressed = this.kickPressed;
+    this.kickPressed = false;
     return wasPressed;
   }
 

@@ -26,8 +26,10 @@ export class InteractionManager {
 
   // Lighthouse beacon interaction
   public isBeaconLit = false;
-  private lighthousePos = new THREE.Vector3(-5.5, 15.5, -6.5);
+  private lighthouseDoorPos = new THREE.Vector3(-5.5, 15.86, -4.5);
+  private lanternPos = new THREE.Vector3(-5.5, 25.76, -6.5);
   private beaconLight: THREE.SpotLight | null = null;
+  private lanternPointLight: THREE.PointLight | null = null;
   private beaconBeam: THREE.Mesh | null = null;
   private beaconAngle = 0;
 
@@ -94,8 +96,8 @@ export class InteractionManager {
       }
     }
 
-    // 2. Setup Lighthouse Beacon effects
-    this.setupLighthouseBeacon(scene);
+    // 2. Setup Lighthouse Beacon effects at top lantern room
+    this.setupLighthouseBeacon(scene, model);
 
     // 3. Find Rowboat object (ensuring we target the parent group containing both hull and frame)
     let boat =
@@ -128,26 +130,65 @@ export class InteractionManager {
     }
   }
 
-  private setupLighthouseBeacon(scene: THREE.Scene): void {
-    const lanternPos = new THREE.Vector3(-5.5, 16.5, -6.5);
-    const beaconGroup = new THREE.Group();
-    beaconGroup.position.copy(lanternPos);
+  private createBeamGradientTexture(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    // Top of canvas (V = 1.0, apex near lantern): brilliant glowing core
+    grad.addColorStop(0.0, 'rgba(255, 252, 235, 0.85)');
+    grad.addColorStop(0.12, 'rgba(255, 248, 220, 0.65)');
+    grad.addColorStop(0.40, 'rgba(255, 245, 205, 0.35)');
+    grad.addColorStop(0.70, 'rgba(255, 240, 190, 0.12)');
+    grad.addColorStop(0.92, 'rgba(255, 240, 190, 0.02)');
+    // Bottom of canvas (V = 0.0, far horizon end): completely faded to 0 opacity
+    grad.addColorStop(1.0, 'rgba(255, 240, 190, 0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 512);
+    return new THREE.CanvasTexture(canvas);
+  }
 
-    this.beaconLight = new THREE.SpotLight(0xfffaed, 0, 70, Math.PI / 6, 0.4, 1.2);
+  private setupLighthouseBeacon(scene: THREE.Scene, model?: THREE.Group): void {
+    if (model) {
+      const lanternObj =
+        model.getObjectByName('Lighthouse_Lantern001') ||
+        model.getObjectByName('Lighthouse_Lantern');
+      if (lanternObj) {
+        const box = new THREE.Box3().setFromObject(lanternObj);
+        box.getCenter(this.lanternPos);
+      }
+    }
+
+    const beaconGroup = new THREE.Group();
+    beaconGroup.position.copy(this.lanternPos);
+
+    // Primary sweeping searchlight with 320m ocean reach
+    this.beaconLight = new THREE.SpotLight(0xfffaed, 0, 320, Math.PI / 6.0, 0.45, 1.0);
     this.beaconLight.position.set(0, 0, 0);
 
+    const beamLength = 260;
+    const beamRadius = 18;
+
+    // Target aimed along +Z matching the volumetric beam trajectory
     const targetObj = new THREE.Object3D();
-    targetObj.position.set(25, 0, 0);
+    targetObj.position.set(0, -6.0, beamLength * 0.75);
     beaconGroup.add(targetObj);
     this.beaconLight.target = targetObj;
     beaconGroup.add(this.beaconLight);
 
-    // Volumetric cone
-    const beamGeom = new THREE.ConeGeometry(3.5, 26, 24, 1, true);
+    // Glowing lantern room light
+    this.lanternPointLight = new THREE.PointLight(0xffe8c0, 0, 20, 1.2);
+    this.lanternPointLight.position.set(0, 0, 0);
+    beaconGroup.add(this.lanternPointLight);
+
+    // Long-range volumetric cone beam (260m) sweeping across ocean with soft gradient fade
+    const beamGeom = new THREE.ConeGeometry(beamRadius, beamLength, 32, 16, true);
+    beamGeom.translate(0, -beamLength * 0.5, 0);
     beamGeom.rotateX(-Math.PI / 2);
-    beamGeom.translate(0, 0, 13);
 
     const beamMat = new THREE.MeshBasicMaterial({
+      map: this.createBeamGradientTexture(),
       color: 0xfffae0,
       transparent: true,
       opacity: 0,
@@ -223,10 +264,10 @@ export class InteractionManager {
       }
     }
 
-    // 3. Lighthouse Beacon Interaction
+    // 3. Lighthouse Beacon Interaction (at ground entrance door)
     if (!this.currentPrompt) {
-      const distToLighthouse = playerPos.distanceTo(this.lighthousePos);
-      if (distToLighthouse < 4.2) {
+      const distToLighthouse = playerPos.distanceTo(this.lighthouseDoorPos);
+      if (distToLighthouse < 4.6) {
         this.currentPrompt = this.isBeaconLit ? 'Lighthouse Beacon is Active' : 'Press [E] to Ignite Beacon';
         if (!this.isBeaconLit) {
           pendingAction = () => {
@@ -281,9 +322,10 @@ export class InteractionManager {
     this.isBeaconLit = true;
     this.questBeaconLit = true;
 
-    if (this.beaconLight) this.beaconLight.intensity = 8.5;
+    if (this.beaconLight) this.beaconLight.intensity = 26.0;
+    if (this.lanternPointLight) this.lanternPointLight.intensity = 10.0;
     if (this.beaconBeam && this.beaconBeam.material instanceof THREE.MeshBasicMaterial) {
-      this.beaconBeam.material.opacity = 0.16;
+      this.beaconBeam.material.opacity = 0.42;
     }
 
     this.sfx.playBeacon();

@@ -9,7 +9,7 @@ export class Environment {
 
   constructor(private readonly scene: Scene) {
     // 1. Directional Sun Light
-    this.sunLight = new THREE.DirectionalLight(0xffeedd, 2.2);
+    this.sunLight = new THREE.DirectionalLight(0xffeedd, 2.6);
     this.sunLight.position.set(30, 45, 20);
     this.sunLight.castShadow = true;
 
@@ -30,16 +30,16 @@ export class Environment {
     this.scene.instance.add(this.sunLight);
 
     // 2. Ambient Light for soft fill
-    this.ambientLight = new THREE.AmbientLight(0xdbeafe, 0.45);
+    this.ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
     this.scene.instance.add(this.ambientLight);
 
     // 3. Hemisphere Light for sky/ground contrast
-    this.hemisphereLight = new THREE.HemisphereLight(0x93c5fd, 0x1e293b, 0.7);
+    this.hemisphereLight = new THREE.HemisphereLight(0x93c5fd, 0x334155, 0.95);
     this.hemisphereLight.position.set(0, 50, 0);
     this.scene.instance.add(this.hemisphereLight);
 
     // 4. Warm Point Light at coastal hut porch
-    this.hutPointLight = new THREE.PointLight(0xffaa44, 2.0, 15, 1.5);
+    this.hutPointLight = new THREE.PointLight(0xffaa44, 2.5, 18, 1.5);
     this.hutPointLight.position.set(-6, 3.5, -4);
     this.hutPointLight.castShadow = true;
     this.hutPointLight.shadow.bias = -0.001;
